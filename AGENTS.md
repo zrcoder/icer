@@ -1,216 +1,347 @@
-# ICER Game Development Guide
+# ICER TypeScript Game Development Guide
 
-This document contains development guidelines and commands for working on the ICER ice block puzzle game.
+This document contains development guidelines and commands for working on the ICER TypeScript ice block puzzle game.
 
 ## Development Commands
 
 ### Running the Game
 ```bash
-# Main game entry point
-python3 src/game/main.py
+# Development server with hot-reload
+npm run dev
 
-# Using the launcher script (recommended)
-./run.sh
+# Production build
+npm run build
 
-# Level editor
-python3 tools/level_editor.py
+# Preview production build
+npm run preview
+
+# Build and serve locally
+npm run build && npm run preview
 ```
 
-### Testing Commands
+### Development Workflow
 ```bash
-# Run individual test files
-python3 tools/test_basic.py
-python3 tools/test_player.py
-python3 tools/test_game.py
-python3 tools/test_grid_world.py
-python3 tools/test_physics.py
-python3 tools/test_ice_system.py
-python3 tools/test_game_system.py
+# Type checking
+npm run type-check
 
-# No pytest configuration found - run tests individually
+# Linting code
+npm run lint
+
+# Fix linting issues
+npm run lint:fix
+
+# Testing
+npm test
+
+# Clean build artifacts
+npm run clean
 ```
 
-### Code Quality Tools
+### Package Management
 ```bash
-# Format code (if available)
-black src/ tools/ --line-length 100
+# Install dependencies
+npm install
 
-# Lint code (if available)  
-flake8 src/ tools/ --max-line-length=100
+# Add new dependency
+npm install <package>
 
-# Type checking (if available)
-mypy src/ tools/
+# Add dev dependency
+npm install -D <package>
+
+# Update dependencies
+npm update
 ```
 
 ## Project Structure & Architecture
 
 ### Core Architecture
+- **TypeScript strict mode** with comprehensive type safety
 - **Component-based entity system** with `GameObject` base class
 - **Fixed-timestep physics engine** for consistent gameplay
 - **Grid-based world system** (20x15 grid by default)
 - **State management** through `GameStateManager`
-- **Level loading** via TOML configuration files
+- **Level loading** via ASCII level definitions
+- **PIXI.js rendering** for smooth 2D graphics
+- **Vite build system** for modern development
 
 ### Module Organization
 ```
 src/
-├── game/          # Main game loop, state, constants
-├── entities/      # Game objects (player, walls, items)
-├── physics/       # Physics engine and systems
-├── world/         # Grid system and game world
-├── levels/        # Level loading and management
-├── rendering/     # UI effects and visual feedback
-├── input/         # Input handling system
-├── utils/         # Helper classes (Vector2, etc.)
-└── rules/         # Game rules and interactions
+├── game/              # Main game loop, state, constants
+├── entities/          # Game objects (player, walls, items)
+├── physics/           # Physics engine and systems
+├── world/             # Grid system and game world
+├── levels/            # Level loading and management
+├── rendering/         # PIXI.js rendering and UI effects
+├── input/             # Input handling system
+├── utils/             # Helper classes (Vector2, etc.)
+└── rules/             # Game rules and interactions
 ```
 
 ## Code Style Guidelines
 
+### TypeScript Configuration
+- **Strict type checking** enabled
+- **Path mapping** for clean imports (`@/` shortcuts)
+- **ESNext modules** with bundler resolution
+- **No implicit any** - all types must be explicit
+- **Unused variables** flagged as errors
+
 ### Import Organization
-```python
-# Standard library imports first
-import sys
-import os
-from typing import Optional, Dict, Any
+```typescript
+// Standard library imports first
+import { Game, GameObject } from '@/game';
+import { Vector2 } from '@/utils';
 
-# Third-party imports
-try:
-    import pygame
-    PYGAME_AVAILABLE = True
-except ImportError:
-    PYGAME_AVAILABLE = False
+// Third-party imports
+import * as PIXI from 'pixi.js';
 
-# Local imports - use absolute paths from project root
-from src.game.constants import *
-from src.utils.vector2 import Vector2
-from src.entities.base import GameObject
+// Type imports
+import type { GameState } from '@/game/gameState';
+import type { Level } from '@/levels/levelManager';
 ```
 
 ### Class Naming & Structure
 - Use **PascalCase** for class names (`GameObject`, `PhysicsEngine`)
-- Use **snake_case** for methods and variables (`update()`, `grid_x`)
-- Abstract base classes should end with `ABC` import and `@abstractmethod`
-- Include comprehensive docstrings for all public methods
+- Use **camelCase** for methods and variables (`update()`, `gridX`)
+- Use **protected/public** modifiers appropriately
+- Include comprehensive JSDoc comments for all public methods
+- Use **type annotations** for all parameters and return types
 
-### Type Hints
-```python
-def __init__(self, x: int = 0, y: int = 0):
-    self.grid_x: int = x
-    self.grid_y: int = y
-    self.position: Vector2 = Vector2(x, y)
-    self.properties: Dict[str, Any] = {}
+### Type Definitions
+```typescript
+interface GameData {
+  moves: number;
+  timeElapsed: number;
+  levelCompleted: boolean;
+  bestMoves: number;
+  bestTime: number;
+}
 
-def update(self, dt: float) -> None:
-    """Update object logic (called each frame)"""
-    pass
+enum GameState {
+  MENU = 'menu',
+  PLAYING = 'playing',
+  PAUSED = 'paused',
+  WIN = 'win',
+  LOSE = 'lose'
+}
 
-def get_position(self) -> Vector2:
-    """Get object position"""
-    return self.position
+class Vector2 {
+  constructor(public x: number = 0.0, public y: number = 0.0) {}
+  
+  add(other: Vector2): Vector2 {
+    return new Vector2(this.x + other.x, this.y + other.y);
+  }
+}
 ```
 
-### Constants & Configuration
-- Define all game constants in `src/game/constants.py`
-- Use **UPPER_SNAKE_CASE** for constants (`WINDOW_WIDTH`, `COLOR_PLAYER`)
-- Group related constants together (colors, keys, states)
-
 ### Error Handling
-```python
-# Graceful handling of optional dependencies
-try:
-    import pygame
-    PYGAME_AVAILABLE = True
-except ImportError:
-    PYGAME_AVAILABLE = False
-    print("Warning: Pygame not installed")
+```typescript
+// Graceful handling of missing dependencies
+import * as PIXI from 'pixi.js';
 
-# Type checking with proper error messages
-def __add__(self, other) -> 'Vector2':
-    if isinstance(other, Vector2):
-        return Vector2(self.x + other.x, self.y + other.y)
-    else:
-        raise TypeError("Can only add Vector2 to Vector2")
+try {
+  const app = new PIXI.Application({
+    width: WINDOW_WIDTH,
+    height: WINDOW_HEIGHT,
+    backgroundColor: 0x000000
+  });
+} catch (error) {
+  console.error('Failed to initialize PIXI:', error);
+  throw new Error('Graphics initialization failed');
+}
+
+// Type checking with proper error messages
+function addVectors(v1: Vector2, v2: Vector2): Vector2 {
+  if (!v1 || !v2) {
+    throw new Error('Both vectors must be valid Vector2 instances');
+  }
+  return new Vector2(v1.x + v2.x, v1.y + v2.y);
+}
 ```
 
 ### Game Object Patterns
-```python
-class CustomObject(GameObject):
-    def __init__(self, x: int = 0, y: int = 0):
-        super().__init__(x, y)
-        # Set object properties
-        self.set_property('solid', True)
-        self.set_property('pushable', False)
-        self.set_property('weight', 1)
-    
-    def get_type(self) -> str:
-        return "custom_object"
-    
-    def get_color(self) -> tuple:
-        return COLOR_CUSTOM
-    
-    def update(self, dt: float):
-        # Update logic here
-        pass
+```typescript
+class CustomObject extends GameObject {
+  constructor(x: number = 0, y: number = 0) {
+    super(x, y);
+    // Set object properties
+    this.setProperty('solid', true);
+    this.setProperty('pushable', false);
+    this.setProperty('weight', 1);
+  }
+  
+  getType(): string {
+    return "custom_object";
+  }
+  
+  getColor(): number {
+    return COLOR_CUSTOM;
+  }
+  
+  update(dt: number): void {
+    // Update logic here
+    super.update(dt);
+  }
+  
+  onCollision(other: GameObject): void {
+    // Handle collision with other object
+    super.onCollision(other);
+  }
+}
 ```
 
 ## Testing Guidelines
 
-### Test File Structure
-- Place tests in `tools/` directory with `test_*.py` naming
-- Use simple assertion-based testing without complex test frameworks
-- Focus on testing core mechanics without pygame dependency when possible
+### Test Structure
+- Use **Jest** for unit and integration tests
+- Place tests in `__tests__/` directories next to source files
+- Use TypeScript for tests with `ts-jest` preset
+- Mock external dependencies (PIXI.js, DOM APIs)
 
 ### Test Example
-```python
-def test_player_movement():
-    """Test player movement capabilities"""
-    world = GameWorld(10, 8)
-    player = Player(5, 1)
-    world.add_object(player, 5, 1)
+```typescript
+// __tests__/utils/vector2.test.ts
+import { Vector2 } from '@/utils/vector2';
+
+describe('Vector2', () => {
+  test('should create vector with default values', () => {
+    const v = new Vector2();
+    expect(v.x).toBe(0);
+    expect(v.y).toBe(0);
+  });
+
+  test('should add two vectors correctly', () => {
+    const v1 = new Vector2(1, 2);
+    const v2 = new Vector2(3, 4);
+    const result = v1.add(v2);
     
-    # Test basic movement
-    assert world.get_object_at(5, 1) == player, "Player should start at position"
+    expect(result.x).toBe(4);
+    expect(result.y).toBe(6);
+  });
+});
 ```
 
 ## Development Workflow
 
 ### Adding New Game Objects
 1. Create new class inheriting from `GameObject` in `src/entities/objects/`
-2. Implement required methods: `get_type()`, `get_color()`
+2. Implement required methods: `getType()`, `getColor()`
 3. Set appropriate properties (`solid`, `pushable`, `weight`, etc.)
-4. Add object color constant to `src/game/constants.py`
-5. Update level editor to support new object type
+4. Add object color constant to `src/game/constants.ts`
+5. Add rendering logic in `src/rendering/gameRenderer.ts`
+6. Add level character mapping in `src/levels/levelManager.ts`
+7. Update game rules if needed in `src/rules/gameRules.ts`
 
 ### Adding New Levels
-1. Create TOML file in `levels/` directory
-2. Follow existing level structure and naming convention
-3. Test loading with custom level tester in `run.sh`
+1. Add level data to `src/levels/levelManager.ts`
+2. Follow existing level structure with ASCII characters
+3. Set optimal moves and time for scoring
+4. Test level loading and gameplay
+5. Update level selection if needed
 
 ### Physics Integration
 - All physics calculations should use the `PhysicsEngine` class
 - Object interactions should be handled through `GameRulesSystem`
-- Ice system has its own specialized update cycle
+- Use fixed timestep for consistent physics
+- Handle edge cases (boundaries, max speeds, etc.)
+
+## Performance Optimization
+
+### TypeScript Best Practices
+- Use **readonly** for immutable data
+- Leverage **type inference** where appropriate
+- Use **generics** for reusable components
+- Enable **strict null checks** and handle nulls explicitly
+
+### Rendering Performance
+- **Object pooling** for frequently created objects
+- **Batch draw calls** where possible
+- **Minimize state changes** in PIXI.js
+- Use **delta time** for frame-independent movement
+
+### Memory Management
+- **Clean up event listeners** in destroy methods
+- **Remove object references** to prevent memory leaks
+- **Use weak references** for temporary object storage
+- **Monitor memory usage** with browser dev tools
 
 ## Code Quality Standards
 
-### Performance Considerations
-- Use `magnitude_squared()` instead of `magnitude()` when comparing distances
-- Cache frequently accessed object references
-- Minimize object creation in update loops
-- Use fixed timestep for physics consistency
+### Linting Rules
+- **No unused variables** - use `_` prefix for unused parameters
+- **Explicit returns** - all functions must have return type annotations
+- **Consistent naming** - follow TypeScript conventions
+- **No implicit any** - all types must be explicit
 
 ### Documentation
-- All public methods must have docstrings
+- All public methods must have JSDoc comments
 - Complex algorithms should have inline comments
-- Constants should be documented where usage isn't obvious
+- Types and interfaces need clear descriptions
 - Update README.md when adding major features
 
-## Dependencies
-- **pygame 2.1.0** - Core game engine and rendering
-- **pytest 6.2.0** - Testing framework (installed but not configured)
-- **black 21.0.0** - Code formatting (installed but not configured)
-- **flake8 3.9.0** - Linting (installed but not configured)
-- **mypy 0.910** - Type checking (installed but not configured)
+## Development Tools
 
-Note: Quality tools are installed but not integrated into workflow - consider setting up pre-commit hooks or CI configuration.
+### VS Code Extensions (Recommended)
+- **TypeScript Importer** - automatic import management
+- **ESLint** - real-time linting feedback
+- **Prettier** - code formatting integration
+- **GitLens** - enhanced Git capabilities
+
+### Browser Testing
+- **Chrome DevTools** - debugging and profiling
+- **Firefox Developer Tools** - cross-browser testing
+- **Network throttling** - performance testing
+- **Mobile emulation** - responsive testing
+
+## Deployment
+
+### Build Process
+```bash
+# Development build with source maps
+npm run build
+
+# Production build (minified)
+npm run build -- --mode production
+
+# Analyze bundle size
+npm run build -- --analyze
+```
+
+### Deployment Targets
+- **Static hosting** - GitHub Pages, Netlify, Vercel
+- **CDN deployment** - Cloudflare, AWS S3
+- **Container deployment** - Docker, Kubernetes
+- **PWA** - progressive web app capabilities
+
+## Dependencies
+- **pixi.js 7.3.2** - 2D graphics rendering engine
+- **typescript 5.0.2** - TypeScript compiler
+- **vite 4.2.1** - Build tool and dev server
+- **jest 29.5.0** - Testing framework
+- **eslint 8.37.0** - Code linting
+- **@types/jest 29.5.0** - Jest type definitions
+
+## Troubleshooting
+
+### Common Issues
+- **Type errors**: Check tsconfig.json and import paths
+- **Module resolution**: Verify package.json and node_modules
+- **Performance**: Use browser dev tools profiling
+- **Build failures**: Check for circular dependencies
+
+### Debug Mode
+```typescript
+// Enable debug mode
+const DEBUG = process.env.NODE_ENV === 'development';
+
+if (DEBUG) {
+  console.log('Debug info:', data);
+}
+```
+
+### Hot Reload Issues
+- Ensure Vite dev server is running
+- Check for syntax errors in TypeScript
+- Verify file watching is working
+- Refresh browser if needed

@@ -1,223 +1,252 @@
-# ICER 游戏需求文档
+# ICER TypeScript Game Requirements Documentation
 
-## 1. 游戏概述
+## 1. Game Overview
 
-### 1.1 游戏名称
-ICER - 二维益智解谜游戏
+### 1.1 Game Name
+ICER - 2D Puzzle Game (Web-Based)
 
-### 1.2 游戏类型
-基于网格的二维益智解谜游戏，结合物理模拟和策略规划
+### 1.2 Game Type
+Grid-based 2D puzzle game combining physics simulation and strategic planning, built for modern web browsers
 
-### 1.3 游戏目标
-玩家控制主角icer，通过创建和操控冰块来清除所有火焰，完成关卡挑战
+### 1.3 Game Objective
+Player controls ICER to extinguish all flames by creating and manipulating ice blocks, completing level challenges
 
-## 2. 游戏世界
+## 2. Game World
 
-### 2.1 世界结构
-- 垂直平面网格系统
-- 每个格子可容纳一个物体
-- 支持多层高度结构
+### 2.1 World Structure
+- Vertical plane grid system
+- Each grid cell can contain one object
+- Support for multi-layer height structures
+- Rendered in browser canvas with hardware acceleration
 
-### 2.2 网格规格
-- 标准关卡尺寸：20x15 网格
-- 可根据关卡需求调整
-- 坐标系统：(0,0) 为左下角
+### 2.2 Grid Specifications
+- Standard level size: 20x15 grid
+- Adjustable based on level requirements
+- Coordinate system: (0,0) at bottom-left corner
+- Grid size: 40px per cell (responsive scaling)
 
-## 3. 游戏角色与物体
+## 3. Game Characters and Objects
 
-### 3.1 主角 ICER
-- **移动能力**：左右移动（J/L键或方向键）
-- **跳跃能力**：可跳上1格高的障碍物
-- **特殊能力**：创建/消除冰块（A/D键）
-- **冰块创建位置**：左下方和右下方相邻格子
+### 3.1 Main Character ICER
+- **Movement**: Left/right movement (J/L keys or arrow keys)
+- **Jumping**: Can jump 1 cell over obstacles (Space key)
+- **Special Ability**: Create/remove ice blocks (A/D keys)
+- **Ice Creation**: Left/bottom and right/bottom adjacent cells
 
-### 3.2 物体类型
+### 3.2 Object Types
 
-#### 3.2.1 墙 (WALL)
-- **属性**：固定障碍物
-- **交互**：可跳上1格高墙
-- **特点**：不可移动，不可摧毁
+#### 3.2.1 Wall (WALL)
+- **Properties**: Fixed obstacle, impassable
+- **Interaction**: Can jump 1 cell higher
+- **Characteristics**: Immovable, indestructible
+- **Rendering**: Dark gray rectangle with brick pattern
 
-#### 3.2.2 冰块 (ICE_BLOCK)
-- **属性**：可创建、可推动、可消除
-- **状态**：牢固状态 / 非牢固状态
-- **物理特性**：光滑表面，会滑动
-- **创建限制**：不能直接放在燃烧的热罐正上方
+#### 3.2.2 Ice Block (ICE_BLOCK)
+- **Properties**: Createable, pushable, destructible
+- **States**: Firm/unfirm state
+- **Physics**: Smooth surface, slides when pushed
+- **Creation Limit**: Cannot be placed directly on burning hot pot
+- **Rendering**: Light blue with transparency effects when melting
 
-#### 3.2.3 石块 (STONE)
-- **属性**：可推动、耐热
-- **物理特性**：粗糙表面，只能移动1格
-- **特殊**：可放置在热罐上方
+#### 3.2.3 Stone (STONE)
+- **Properties**: Pushable, heat resistant
+- **Physics**: Rough surface, moves only 1 cell when pushed
+- **Special**: Can be placed on hot pot
+- **Rendering**: Gray with irregular stone shape
 
-#### 3.2.4 火焰 (FLAME)
-- **属性**：目标消除对象
-- **消除方式**：冰块接触后消除
-- **特点**：正上方的冰块不会融化
+#### 3.2.4 Flame (FLAME)
+- **Properties**: Target elimination object
+- **Elimination**: Extinguished by ice block contact
+- **Characteristics**: Ice blocks above won't melt
+- **Rendering**: Red with animated flicker effect
 
-#### 3.2.5 罐子 (POT)
-- **冰罐 (ICE_POT)**：初始状态，可被点燃
-- **热罐 (HOT_POT)**：被点燃后的状态，永久保持
-- **交互**：玩家不能站立在热罐上方
-- **转换**：冰罐遇火焰变成热罐
+#### 3.2.5 Pot (POT)
+- **Ice Pot**: Initial state, can be ignited
+- **Hot Pot**: Permanently heated after ignition
+- **Interaction**: Player cannot stand on hot pot
+- **Conversion**: Ice pot → Hot pot when touched by flame
+- **Rendering**: White (cold) or orange (hot) with steam effects
 
-#### 3.2.6 传送门 (PORTAL)
-- **功能**：双向传送
-- **使用条件**：玩家位置比水管低一阶时可进入
-- **形状**：不同形状和长度
+#### 3.2.6 Portal (PORTAL)
+- **Function**: Two-way teleportation
+- **Usage**: Player position must be at least 1 level below portal
+- **Characteristics**: Different shapes and lengths
+- **Rendering**: Green with glowing animation and swirl effects
 
-## 4. 游戏规则
+## 4. Game Rules
 
-### 4.1 基本规则
+### 4.1 Basic Rules
 
-#### 4.1.1 胜利条件
-- 清除所有火焰即可完成关卡
+#### 4.1.1 Win Condition
+- Extinguish all flames to complete level
 
-#### 4.1.2 移动规则
-- 左右移动：J/L键或左右方向键
-- 跳跃：自动跳上1格高障碍物
-- 碰撞检测：遇到障碍物停止移动
+#### 4.1.2 Movement Rules
+- Left/right movement: J/L keys or left/right arrow keys
+- Jumping: Automatic 1-cell jump over obstacles
+- Collision detection: Stop movement when encountering obstacles
 
-#### 4.1.3 冰块操作
-- 创建冰块：A键（左下方）、D键（右下方）
-- 消除冰块：相同按键位置已有冰块时消除
-- 位置限制：只能在主角相邻的左下、右下位置操作
+#### 4.1.3 Ice Block Operations
+- Create ice: A key (left/bottom), D key (right/bottom)
+- Remove ice: Same key when ice already exists at position
+- Position limit: Only adjacent left/bottom and right/bottom positions
 
-### 4.2 物理规则
+### 4.2 Physics Rules
 
-#### 4.2.1 牢固状态判定
-冰块处于"牢固"状态当且仅当：
-- 冰块建立在另一个物体左右相邻位置，或
-- 冰块下方有物体支撑
+#### 4.2.1 Firm State Determination
+Ice block is "firm" when:
+- Ice block built next to another object left/right, OR
+- Ice block has object support below
 
-#### 4.2.2 移动特性
-- **冰块**：光滑表面，推动后会持续滑动直到遇到障碍物或掉落
-- **石块**：粗糙表面，推动后只移动1格距离
-- **特殊情况**：石块在冰块上会持续滑动直到遇到粗糙表面
+#### 4.2.2 Movement Properties
+- **Ice Block**: Smooth surface, continues sliding after push until hitting obstacle or falling
+- **Stone Block**: Rough surface, moves only 1 cell distance when pushed
+- **Special Case**: Stone on ice block continues sliding until hitting rough surface
 
-#### 4.2.3 掉落规则
-- 非牢固状态的冰块会掉落
-- 掉落直到遇到固定物体或到达底部
-- 可能引起连锁反应
+#### 4.2.3 Falling Rules
+- Unfirm ice blocks will fall
+- Fall until hitting fixed object or reaching bottom
+- May trigger chain reactions
 
-#### 4.2.4 推动限制
-- 只能推动旁边没有其他物体的单一冰块或石块
-- 相连的2个或更多冰块/石块无法被推动
+#### 4.2.4 Push Limits
+- Can only push single ice block or stone with no adjacent objects
+- Two or more connected ice blocks/stones cannot be pushed
 
-### 4.3 特殊规则
+### 4.3 Special Rules
 
-#### 4.3.1 热罐交互
-- 冰块不能直接放在燃烧的热罐正上方（会被烤消失）
-- 冰块可放置在比热罐更高的位置
-- 石块可放置在热罐上方
+#### 4.3.1 Pot Interactions
+- Ice blocks cannot be placed directly on burning hot pot (will disappear)
+- Ice blocks can be placed at higher positions than hot pot
+- Stone blocks can be placed on hot pot
 
-#### 4.3.2 传送门使用
-- 玩家位置比传送门低一阶时可进入
-- 传送到另一个传送门出口
-- 保持相对高度关系
+#### 4.3.2 Portal Usage
+- Player can enter portal when at least 1 level below
+- Teleport to other portal exit
+- Maintain relative height relationship
 
-#### 4.3.3 重量支撑
-- 冰块或玩家上方可支撑无限重量
-- 无需考虑承重限制
+#### 4.3.3 Weight Support
+- Ice blocks or player above can support unlimited weight
+- No weight support limits to consider
 
-## 5. 游戏机制
+## 5. Game Mechanics
 
-### 5.1 策略要素
-- **台阶搭建**：用冰块形成台阶到达更高地方
-- **冰桥构建**：连接冰块形成通道到达其他区域
-- **物体组合**：利用各种冰块配置达成目标
-- **资源管理**：合理使用有限的冰块创建机会
+### 5.1 Strategy Elements
+- **Platform Building**: Use ice blocks to form steps to reach higher places
+- **Ice Bridge Construction**: Connect ice blocks to form paths to other areas
+- **Object Combinations**: Utilize various ice block configurations to achieve goals
+- **Resource Management**: Efficient use of limited ice block creation opportunities
 
-### 5.2 关卡设计原则
-- 逐步引导玩家学习规则
-- 复杂度递增
-- 多种解法可能性
-- 并非所有物体都需要使用
+### 5.2 Level Design Principles
+- **Progressive Tutorial**: Gradually guide players through learning game rules
+- **Increasing Complexity**: Multiple solution possibilities with escalating difficulty
+- **Not All Objects Required**: Encourage creative problem-solving approaches
 
-## 6. 技术需求
+## 6. Technical Requirements
 
-### 6.1 技术栈
-- **语言**：Python 3.8+
-- **框架**：Pygame 2.0+
-- **架构**：面向对象设计
+### 6.1 Technology Stack
+- **Language**: TypeScript 5.0+
+- **Rendering**: PIXI.js 7.3.2+ (WebGL)
+- **Build System**: Vite 4.2.1+
+- **Development Environment**: VS Code + TypeScript
 
-### 6.2 性能要求
-- 帧率：60 FPS
-- 响应时间：输入延迟 < 100ms
-- 内存占用：< 100MB
+### 6.2 Performance Requirements
+- **Frame Rate**: 60 FPS target
+- **Response Time**: Input delay < 100ms
+- **Memory Usage**: < 100MB
+- **Bundle Size**: < 2MB for production build
 
-### 6.3 输入支持
-- **键盘**：J/L（移动）、A/D（冰块操作）、方向键（备用移动）
-- **扩展**：支持自定义按键配置
+### 6.3 Input Support
+- **Keyboard**: J/L (movement), A/D (ice operations), Arrow keys (alternate movement)
+- **Accessibility**: Configurable key bindings support
+- **Touch**: Planned mobile touch controls
 
-## 7. 用户界面
+## 7. User Interface
 
-### 7.1 游戏界面
-- **主游戏区域**：网格化游戏世界
-- **状态显示**：当前关卡、操作提示
-- **控制说明**：按键操作指南
+### 7.1 Game Interface
+- **Main Game Area**: Grid-based game world with responsive scaling
+- **Status Display**: Current level, operation hints
+- **Control Instructions**: Keyboard operation guide
+- **Responsive Design**: Adapts to different screen sizes
 
-### 7.2 关卡界面
-- **关卡选择**：已解锁关卡列表
-- **进度显示**：完成状态
-- **难度标识**：关卡难度等级
+### 7.2 Level Interface
+- **Level Selection**: Unlocked level list
+- **Progress Display**: Completion status
+- **Difficulty Indicators**: Level difficulty labels
+- **Performance Tracking**: Best times and move counts
 
-## 8. 关卡设计
+## 8. Level Design
 
-### 8.1 关卡结构
-- **教程关卡**：3-5个，逐步介绍游戏机制
-- **基础关卡**：10-15个，掌握核心玩法
-- **进阶关卡**：15-20个，复杂策略挑战
-- **专家关卡**：5-10个，高难度解谜
+### 8.1 Level Structure
+- **Tutorial Levels**: 3-5 levels, gradually introduce game mechanics
+- **Basic Levels**: 10-15 levels, master core gameplay
+- **Advanced Levels**: 15-20 levels, complex strategic challenges
+- **Expert Levels**: 5-10 levels, high-diculty puzzles
 
-### 8.2 关卡元素
-- **网格尺寸**：根据难度调整
-- **物体配置**：不同类型和数量的物体
-- **目标设置**：火焰位置和数量
-- **解法路径**：主要和替代解法
+### 8.2 Level Elements
+- **Grid Size**: Adjusted based on difficulty
+- **Object Configuration**: Different types and quantities of objects
+- **Goal Setting**: Flame positions and quantities
+- **Solution Paths**: Primary and alternative solution methods
 
-## 9. 开发里程碑
+## 9. Development Milestones
 
-### 9.1 第一阶段 - 基础框架
-- 游戏窗口和渲染系统
-- 网格坐标系统
-- 基础输入处理
+### 9.1 First Phase - Basic Framework
+- Game window and rendering system
+- Grid coordinate system
+- Basic input handling
 
-### 9.2 第二阶段 - 核心玩法
-- 主角移动和跳跃
-- 冰块创建/消除
-- 基础物体类型
+### 9.2 Second Phase - Core Gameplay
+- Character movement and jumping
+- Ice block creation/removal
+- Basic object types
 
-### 9.3 第三阶段 - 物理系统
-- 推动和掉落机制
-- 滑动和牢固状态
-- 物体间交互
+### 9.3 Third Phase - Physics System
+- Push and fall mechanics
+- Slide and firm state
+- Object interaction
 
-### 9.4 第四阶段 - 游戏规则
-- 火焰消除系统
-- 冰罐加热机制
-- 传送门功能
+### 9.4 Fourth Phase - Game Rules
+- Flame elimination system
+- Pot heating mechanism
+- Portal functionality
 
-### 9.5 第五阶段 - 完善优化
-- 关卡系统
-- UI界面
-- 测试和调试
+### 9.5 Fifth Phase - Polish & Optimization
+- Level system
+- UI interface
+- Testing and debugging
 
-## 10. 质量保证
+## 10. Quality Assurance
 
-### 10.1 测试要求
-- **功能测试**：所有游戏机制正常工作
-- **边界测试**：极端情况处理
-- **性能测试**：流畅运行
-- **用户体验**：操作直观，反馈清晰
+### 10.1 Testing Requirements
+- **Functional Testing**: All game mechanics work correctly
+- **Boundary Testing**: Edge case handling
+- **Performance Testing**: Smooth operation
+- **User Experience**: Intuitive controls, clear feedback
 
-### 10.2 验收标准
-- 所有核心功能实现
-- 无严重bug
-- 流畅的游戏体验
-- 完整的教程关卡
+### 10.2 Acceptance Criteria
+- All core functionality implemented
+- No serious bugs
+- Smooth game experience
+- Complete tutorial levels
 
 ---
 
-**文档版本**：1.0  
-**创建日期**：2026-01-13  
-**最后更新**：2026-01-13
+## Browser Compatibility
+
+### Minimum Requirements
+- **Chrome 90+**
+- **Firefox 88+**
+- **Safari 14+**
+- **Edge 90+**
+
+### Recommended Requirements
+- **Chrome 100+**
+- **Hardware acceleration enabled**
+- **Modern device with GPU support**
+
+---
+
+**Documentation Version**: 2.0  
+**Migration Date**: January 2025  
+**Last Updated**: January 2025  
+
+*This document describes the requirements for the TypeScript web-based version of ICER, focusing on modern browser implementation with enhanced performance and cross-platform compatibility.*

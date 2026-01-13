@@ -1,0 +1,38 @@
+{
+  "name": "icer-game",
+  "version": "1.0.0",
+  "description": "Ice Block Puzzle Game in TypeScript",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "serve": "vite preview",
+    "lint": "eslint src --ext .ts",
+    "type-check": "tsc --noEmit",
+    "test": "jest",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "game",
+    "puzzle",
+    "typescript",
+    "ice-block"
+  ],
+  "author": "ICER Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@typescript-eslint/eslint-plugin": "^5.57.0",
+    "@typescript-eslint/parser": "^5.57.0",
+    "eslint": "^8.37.0",
+    "jest": "^29.5.0",
+    "rimraf": "^4.4.1",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.2",
+    "vite": "^4.2.1"
+  },
+  "dependencies": {
+    "pixi.js": "^7.4.3"
+  }
+}

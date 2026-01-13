@@ -1,0 +1,51 @@
+# Game Constants
+
+# Window settings
+WINDOW_WIDTH = 800
+WINDOW_HEIGHT = 600
+FPS = 60
+
+# Grid settings
+GRID_WIDTH = 20
+GRID_HEIGHT = 15
+CELL_SIZE = 40
+
+# Colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GRAY = (128, 128, 128)
+LIGHT_GRAY = (200, 200, 200)
+DARK_GRAY = (64, 64, 64)
+RED = (255, 0, 0)
+BLUE = (0, 100, 255)
+LIGHT_BLUE = (173, 216, 230)
+GREEN = (0, 255, 0)
+YELLOW = (255, 255, 0)
+ORANGE = (255, 165, 0)
+
+# Game object colors
+COLOR_PLAYER = BLUE
+COLOR_WALL = DARK_GRAY
+COLOR_ICE_BLOCK = LIGHT_BLUE
+COLOR_STONE = GRAY
+COLOR_FLAME = RED
+COLOR_ICE_POT = WHITE
+COLOR_HOT_POT = ORANGE
+COLOR_PORTAL = GREEN
+
+# Input keys
+KEY_MOVE_LEFT = 'j'
+KEY_MOVE_RIGHT = 'l'
+KEY_ICE_LEFT = 'a'
+KEY_ICE_RIGHT = 'd'
+
+# Alternative arrow keys
+KEY_ALT_LEFT = 'left'
+KEY_ALT_RIGHT = 'right'
+
+# Game states
+STATE_MENU = 'menu'
+STATE_PLAYING = 'playing'
+STATE_PAUSED = 'paused'
+STATE_WIN = 'win'
+STATE_LOSE = 'lose'

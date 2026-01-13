@@ -198,6 +198,66 @@ class Game:
         elif self.state_manager.is_state(GameState.LOSE):
             self._update_lose(dt)
     
+    def _update_menu(self, dt: float):
+        """Update menu logic"""
+        # Handle input for level selection
+        keys = pygame.key.get_pressed()
+        
+        # Get available levels
+        available_levels = self.level_manager.get_available_levels()
+        
+        # Start first available level with SPACE
+        if keys[pygame.K_SPACE]:
+            first_unlocked = next((l for l in available_levels if l['is_unlocked']), None)
+            if first_unlocked:
+                self.level_manager.load_level(first_unlocked['level_id'])
+                self.state_manager.game_data.reset_level_data()
+                self.state_manager.change_state(GameState.PLAYING)
+        
+        # Quick level selection with number keys
+        for i in range(6):
+            if i < len(available_levels) and available_levels[i]['is_unlocked']:
+                if keys[pygame.K_1 + i]:
+                    self.level_manager.load_level(available_levels[i]['level_id'])
+                    self.state_manager.game_data.reset_level_data()
+                    self.state_manager.change_state(GameState.PLAYING)
+    
+    def _update_paused(self, dt: float):
+        """Update paused logic"""
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_ESCAPE]:
+            self.state_manager.change_state(GameState.PLAYING)
+    
+    def _update_win(self, dt: float):
+        """Update win screen logic"""
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_SPACE]:
+            # Mark level as completed
+            self.level_manager.complete_level()
+            self.state_manager.change_state(GameState.MENU)
+        elif keys[pygame.K_r]:
+            # Restart level
+            self._initialize_level()
+            self.state_manager.change_state(GameState.PLAYING)
+        
+        # Quick level selection
+        available_levels = self.level_manager.get_available_levels()
+        for i in range(6):
+            if i < len(available_levels) and available_levels[i]['is_unlocked']:
+                if keys[pygame.K_1 + i]:
+                    self.level_manager.load_level(available_levels[i]['level_id'])
+                    self.state_manager.game_data.reset_level_data()
+                    self.state_manager.change_state(GameState.PLAYING)
+    
+    def _update_lose(self, dt: float):
+        """Update lose screen logic"""
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_r]:
+            self._initialize_level()
+            self.state_manager.change_state(GameState.PLAYING)
+        elif keys[pygame.K_ESCAPE]:
+            self.state_manager.change_state(GameState.MENU)
+    
     def _update_gameplay(self, dt: float):
         """Update gameplay logic"""
         # Update game time
@@ -227,6 +287,38 @@ class Game:
         # Handle player input
         self._handle_player_input(dt)
         self._check_win_conditions()
+    
+    def render(self):
+        """Main render method"""
+        # Clear screen
+        self.screen.fill(BLACK)
+        
+        # Render based on current state
+        if self.state_manager.is_state(GameState.PLAYING):
+            self._render_gameplay()
+        elif self.state_manager.is_state(GameState.MENU):
+            self._render_menu()
+        elif self.state_manager.is_state(GameState.PAUSED):
+            self._render_gameplay()
+            self._render_paused_overlay()
+        elif self.state_manager.is_state(GameState.WIN):
+            self._render_win()
+        elif self.state_manager.is_state(GameState.LOSE):
+            self._render_lose()
+        
+        # Update display
+        pygame.display.flip()
+    
+    def _render_gameplay(self):
+        """Render gameplay screen"""
+        # Render grid
+        self._render_grid()
+        
+        # Render game objects
+        self._render_game_objects()
+        
+        # Render UI
+        self._render_ui()
     
     def _render_grid(self):
         """Render grid lines"""
@@ -374,25 +466,6 @@ class Game:
             text_rect = text.get_rect(center=(WINDOW_WIDTH // 2, y_offset))
             self.screen.blit(text, text_rect)
             y_offset += 25
-        
-        # Handle input for level selection
-        keys = pygame.key.get_pressed()
-        
-        # Start first available level with SPACE
-        if keys[pygame.K_SPACE]:
-            first_unlocked = next((l for l in available_levels if l['is_unlocked']), None)
-            if first_unlocked:
-                self.level_manager.load_level(first_unlocked['level_id'])
-                self.state_manager.game_data.reset_level_data()
-                self.state_manager.change_state(GameState.PLAYING)
-        
-        # Quick level selection with number keys
-        for i in range(6):
-            if i < len(available_levels) and available_levels[i]['is_unlocked']:
-                if keys[pygame.K_1 + i]:
-                    self.level_manager.load_level(available_levels[i]['level_id'])
-                    self.state_manager.game_data.reset_level_data()
-                    self.state_manager.change_state(GameState.PLAYING)
     
     def _render_paused_overlay(self):
         """Render pause overlay"""
@@ -416,7 +489,10 @@ class Game:
         """Render win screen"""
         # Draw celebration background
         for i in range(0, WINDOW_HEIGHT, 20):
-            color = (int(20 + 10 * (i % 40)), int(40 + 5 * (i % 20)), int(20 + 15 * (i % 30)))
+            r = min(255, int(20 + 10 * (i % 40)))
+            g = min(255, int(40 + 5 * (i % 20)))
+            b = min(255, int(20 + 15 * (i % 30)))
+            color = (r, g, b)
             pygame.draw.rect(self.screen, color, (0, i, WINDOW_WIDTH, 20))
         
         # Draw celebration text with animation effect
@@ -469,26 +545,6 @@ class Game:
             text = self.small_font.render(option_text, True, color)
             text_rect = text.get_rect(center=(WINDOW_WIDTH // 2, options_y + i * 25))
             self.screen.blit(text, text_rect)
-        
-        # Handle input
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE]:
-            # Mark level as completed
-            self.level_manager.complete_level()
-            self.state_manager.change_state(GameState.MENU)
-        elif keys[pygame.K_r]:
-            # Restart level
-            self._initialize_level()
-            self.state_manager.change_state(GameState.PLAYING)
-        
-        # Quick level selection
-        available_levels = self.level_manager.get_available_levels()
-        for i in range(6):
-            if i < len(available_levels) and available_levels[i]['is_unlocked']:
-                if keys[pygame.K_1 + i]:
-                    self.level_manager.load_level(available_levels[i]['level_id'])
-                    self.state_manager.game_data.reset_level_data()
-                    self.state_manager.change_state(GameState.PLAYING)
     
     def _calculate_score(self) -> float:
         """Calculate efficiency score based on optimal performance"""
@@ -521,14 +577,36 @@ class Game:
         retry_text = self.small_font.render("Press R to retry or ESC for menu", True, WHITE)
         retry_rect = retry_text.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 50))
         self.screen.blit(retry_text, retry_rect)
-        
-        # Handle input
+    
+    def _handle_player_input(self, dt: float):
+        """Handle player input during gameplay"""
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_r]:
-            self._initialize_level()
-            self.state_manager.change_state(GameState.PLAYING)
-        elif keys[pygame.K_ESCAPE]:
-            self.state_manager.change_state(GameState.MENU)
+        
+        if not self.player:
+            return
+        
+        # Handle movement
+        if keys[pygame.K_j] or keys[pygame.K_LEFT]:
+            self.player.move_left(self.game_world)
+        elif keys[pygame.K_l] or keys[pygame.K_RIGHT]:
+            self.player.move_right(self.game_world)
+        
+        # Handle ice creation/removal
+        if keys[pygame.K_a]:
+            self.player.create_ice_left(self.game_world, self.ice_system)
+        elif keys[pygame.K_d]:
+            self.player.create_ice_right(self.game_world, self.ice_system)
+    
+    def _check_win_conditions(self):
+        """Check if win conditions are met"""
+        from src.entities.objects.flame import Flame
+        
+        # Count remaining flames
+        flame_count = self.game_world.count_objects_of_type(Flame)
+        
+        # Win condition: no flames remaining
+        if flame_count == 0:
+            self.state_manager.change_state(GameState.WIN)
     
     def run(self):
         """Main game loop"""

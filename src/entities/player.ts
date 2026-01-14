@@ -1,5 +1,5 @@
 import { GameObject } from '@/entities/base';
-import { COLOR_PLAYER, CELL_SIZE } from '@/game/constants';
+import { COLOR_PLAYER } from '@/game/constants';
 import { Vector2 } from '@/utils/vector2';
 
 /**
@@ -52,7 +52,7 @@ export class Player extends GameObject {
     this.animationOffset = new Vector2(0, bobAmount);
   }
 
-  getRenderOffset(currentTime?: number): [number, number] {
+  getRenderOffset(_currentTime?: number): [number, number] {
     return this.animationOffset.toTuple();
   }
 

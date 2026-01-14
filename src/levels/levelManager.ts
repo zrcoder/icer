@@ -25,9 +25,10 @@ export interface Level {
  */
 export class LevelManager {
   private gameWorld: GameWorld;
-  private gameRules: GameRulesSystem;
-  private physicsEngine: PhysicsEngine;
-  private iceSystem: IceBlockSystem;
+  // Future system integrations
+  // private gameRules: GameRulesSystem;
+  // private physicsEngine: PhysicsEngine;
+  // private iceSystem: IceBlockSystem;
   
   private levels: Map<string, Level> = new Map();
   private currentLevel: Level | null = null;
@@ -36,14 +37,14 @@ export class LevelManager {
 
   constructor(
     gameWorld: GameWorld,
-    gameRules: GameRulesSystem,
-    physicsEngine: PhysicsEngine,
-    iceSystem: IceBlockSystem
+    _gameRules: GameRulesSystem,
+    _physicsEngine: PhysicsEngine,
+    _iceSystem: IceBlockSystem
   ) {
     this.gameWorld = gameWorld;
-    this.gameRules = gameRules;
-    this.physicsEngine = physicsEngine;
-    this.iceSystem = iceSystem;
+    // this.gameRules = gameRules;
+    // this.physicsEngine = physicsEngine;
+    // this.iceSystem = iceSystem;
     
     this.loadBuiltInLevels();
   }
@@ -174,7 +175,7 @@ export class LevelManager {
 
     // Clear current world
     this.gameWorld.clear();
-    this.iceSystem.reset();
+    // this.iceSystem.reset();
 
     // Parse and create level
     this.parseLevelData(level);
@@ -325,7 +326,7 @@ export class LevelManager {
   completeLevel(): void {
     if (this.currentLevelId) {
       // Mark level as completed
-      console.log(`Level completed: ${this.currentLevel.name}`);
+      console.log(`Level completed: ${this.currentLevel?.name || 'Unknown'}`);
     }
   }
 

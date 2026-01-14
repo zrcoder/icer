@@ -23,7 +23,7 @@ export class Stone extends GameObject {
     return COLOR_STONE;
   }
 
-  update(dt: number): void {
+  update(_dt: number): void {
     // Stones don't have special update logic
   }
 

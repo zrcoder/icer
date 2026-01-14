@@ -7,12 +7,12 @@ import { GameObject } from '@/entities/base';
  */
 export class PushSystem {
   private gameWorld: GameWorld;
-  private physicsEngine: PhysicsEngine;
+  // private _physicsEngine: PhysicsEngine; // Reserved for future physics integration
   private pushRequests: PushRequest[] = [];
 
-  constructor(gameWorld: GameWorld, physicsEngine: PhysicsEngine) {
+  constructor(gameWorld: GameWorld, _physicsEngine: PhysicsEngine) {
     this.gameWorld = gameWorld;
-    this.physicsEngine = physicsEngine;
+    // this._physicsEngine = physicsEngine;
   }
 
   /**
@@ -184,7 +184,7 @@ export class PushSystem {
       if (object && object.isPushable() && object !== pushedObject) {
         // Calculate push direction based on position
         const dx = pos.x - x;
-        const dy = pos.y - y;
+        // const dy = pos.y - y; // Vertical component not used for horizontal pushing
 
         if (Math.abs(dx) > 0) { // Horizontal chain push
           const direction = dx > 0 ? 'right' : 'left';

@@ -73,7 +73,7 @@ export class Pot extends GameObject {
     this.setProperty('is_hot', false);
   }
 
-  canBePlacedOnHotPot(hotPotY: number = 0): boolean {
+  canBePlacedOnHotPot(_hotPotY: number = 0): boolean {
     // Only ice blocks can be placed on hot pots (to melt them)
     return this.isCold === false; // This is a hot pot
   }

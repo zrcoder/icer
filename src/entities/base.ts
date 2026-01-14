@@ -25,7 +25,7 @@ export abstract class GameObject {
   abstract getColor(): number;
 
   // Virtual methods that can be overridden
-  update(dt: number): void {
+  update(_dt: number): void {
     // Update logic (called each frame)
   }
 

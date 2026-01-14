@@ -1,5 +1,5 @@
 import { GameWorld } from '@/world/gameWorld';
-import { Player, Wall, IceBlock, Flame, Stone, Pot, Portal } from '@/entities';
+import { Player } from '@/entities';
 import { PhysicsEngine, IceBlockSystem, PushSystem } from '@/physics';
 import { GameStateManager, GameState } from '@/game/gameState';
 import { InputHandler } from '@/input';
@@ -27,7 +27,7 @@ export class Game {
   private player: Player | null = null;
   private isRunning: boolean = true;
   private lastTime: number = 0;
-  private accumulator: number = 0;
+  // private _accumulator: number = 0; // Reserved for future physics implementation
 
   constructor() {
     // Initialize canvas
@@ -119,7 +119,7 @@ export class Game {
   /**
    * Handle player input during gameplay
    */
-  private handlePlayerInput(dt: number): void {
+  private handlePlayerInput(_dt: number): void {
     if (!this.player || !this.stateManager.isState(GameState.PLAYING)) {
       return;
     }
@@ -167,7 +167,7 @@ export class Game {
   /**
    * Update menu logic
    */
-  private updateMenu(dt: number): void {
+  private updateMenu(_dt: number): void {
     // Handle level selection
     if (this.inputHandler.isKeyJustPressed(' ')) {
       this.stateManager.changeState(GameState.PLAYING);
@@ -191,7 +191,7 @@ export class Game {
   /**
    * Update win screen logic
    */
-  private updateWinScreen(dt: number): void {
+  private updateWinScreen(_dt: number): void {
     if (this.inputHandler.isKeyJustPressed(' ')) {
       this.levelManager.completeLevel();
       this.stateManager.changeState(GameState.MENU);
@@ -217,7 +217,7 @@ export class Game {
   /**
    * Update lose screen logic
    */
-  private updateLoseScreen(dt: number): void {
+  private updateLoseScreen(_dt: number): void {
     if (this.inputHandler.isKeyJustPressed('r')) {
       this.resetLevel();
       this.stateManager.changeState(GameState.PLAYING);

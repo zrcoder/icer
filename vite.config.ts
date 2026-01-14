@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite'
 import { resolve } from 'path'
+import terser from '@rollup/plugin-terser'
 
 export default defineConfig({
+  base: '/icer/',
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
@@ -22,11 +24,32 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    sourcemap: false, // Disable sourcemaps for obfuscation
+    minify: 'terser',
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html')
-      }
+      },
+      plugins: [
+        terser({
+          compress: {
+            drop_console: true, // Remove console.log statements
+            drop_debugger: true, // Remove debugger statements
+            pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
+            passes: 2, // Multiple compression passes
+          },
+          mangle: {
+            toplevel: true, // Mangle top-level variable names
+            properties: {
+              regex: /^_/, // Mangle private properties starting with _
+            },
+            reserved: ['Game', 'Player', 'PIXI'], // Reserve important names
+          },
+          format: {
+            comments: false, // Remove all comments
+          },
+        })
+      ]
     }
   }
 })

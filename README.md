@@ -1,10 +1,10 @@
 # ICER - Ice Block Puzzle Game 🧊🔥
 
-## 🎮 Game Status: **TypeScript Version - FULLY FUNCTIONAL!** 
+## 🎮 Game Overview
 
-The ICER ice block puzzle game has been successfully converted to TypeScript with modern web technologies and enhanced performance!
+Extinguish all 🔥 flames using your ice magic! Create ice blocks to reach high places, push stones to solve puzzles, and use portals to navigate complex levels.
 
-## 🚀 **Quick Start**
+## 🚀 Quick Start
 
 ### Prerequisites
 - **Node.js** (v16 or higher)
@@ -22,7 +22,8 @@ npm run dev
 # http://localhost:3000
 ```
 
-### **Controls:**
+## 🎮 Controls
+
 - **J/L or Arrow Keys**: Move left/right
 - **A/D**: Create/remove ice blocks
 - **Space**: Jump over obstacles
@@ -32,62 +33,32 @@ npm run dev
 - **SPACE**: Start game/continue
 - **TAB**: Toggle menu
 
-### **Game Objective:**
-Extinguish all 🔥 flames using your ice magic! Create ice blocks to reach high places, push stones to solve puzzles, and use portals to navigate complex levels.
+## 🧩 Level Progression
 
-## ✅ **Completed Features**
-
-### 🎯 **Core Game Systems**
-- ✅ **Complete physics engine** with gravity, pushing, sliding
-- ✅ **6 unique object types** (Player, Wall, Stone, IceBlock, Flame, Pot, Portal)
-- ✅ **Complex object interactions** (ice extinguishes flames, pots ignite, ice melts)
-- ✅ **Level progression system** with 5 built-in levels + progression tracking
-- ✅ **Save/load game progress** functionality
-
-### 🎨 **Enhanced UI & Visual Effects**
-- ✅ **Modern PIXI.js rendering** for smooth graphics and animations
-- ✅ **Interactive level selection menu** with completion tracking
-- ✅ **Real-time UI panels** showing moves, time, and flame counter
-- ✅ **Advanced win/lose screens** with performance scoring
-- ✅ **Visual object animations** (flame flicker, ice melting, portal swirls)
-
-### 🛠️ **TypeScript Advantages**
-- ✅ **Type safety** with comprehensive TypeScript definitions
-- ✅ **Modern development workflow** with hot-reload and instant feedback
-- ✅ **Modular architecture** with clean separation of concerns
-- ✅ **Cross-platform deployment** to any modern web browser
-
-## 📁 **Project Structure**
-```
-src/                    # TypeScript source code
-│   ├── game/              # Main game loop & state management
-│   ├── entities/          # Game objects (player, walls, items)
-│   ├── physics/           # Physics engine and systems
-│   ├── world/             # Grid system & game world
-│   ├── levels/            # Level loading & management
-│   ├── rendering/         # PIXI.js rendering & UI effects
-│   ├── input/             # Keyboard & mouse input handling
-│   ├── utils/             # Helper classes (Vector2, etc.)
-│   └── rules/             # Game rules & interactions
-├── dist/                  # Compiled production build
-├── docs/                  # Documentation
-├── assets/                 # Game assets (levels, images)
-├── package.json           # Project configuration
-├── tsconfig.json         # TypeScript configuration
-├── vite.config.ts        # Build configuration
-└── index.html            # Entry page
-```
-
-## 🧩 **Level Progression**
 1. **Tutorial 1**: Movement Basics - Learn controls
 2. **Tutorial 2**: Ice Creation - Master ice magic
 3. **Basic 1**: Ice Bridge - Simple building puzzle
 4. **Basic 2**: Stone Pusher - Physics puzzle
 5. **Medium 1**: Portal Maze - Complex navigation
 
-## 🛠️ **Development Workflow**
+## 🎯 Game Features
 
-### Build Commands
+### Core Mechanics
+- **Ice Blocks**: Created with A/D keys, extinguish flames, melt near heat
+- **Flames**: Win condition when all are extinguished, ignite cold pots
+- **Pots**: Cold pots heat up near flames, hot pots melt ice blocks
+- **Portals**: Teleport player and objects between paired portals
+- **Stones**: Heavy pushable objects for puzzle solving
+
+### Visual Features
+- Smooth graphics and animations
+- Interactive level selection menu with completion tracking
+- Real-time UI panels showing moves, time, and flame counter
+- Advanced win/lose screens with performance scoring
+- Visual object animations (flame flicker, ice melting, portal swirls)
+
+## 🛠️ Development Commands
+
 ```bash
 # Development server with hot-reload
 npm run dev
@@ -108,46 +79,27 @@ npm run test
 npm run clean
 ```
 
-### Code Quality
-- **TypeScript strict mode** for maximum type safety
-- **ESLint** for code style and error prevention
-- **Modular imports** with path mapping
-- **Modern ES6+ syntax** throughout
+## 🌐 Deployment
 
-## 🏆 **Technical Achievements**
+### GitHub Pages Deployment
+```bash
+# Deploy to GitHub Pages
+npm run deploy
 
-- ✅ **Full TypeScript conversion** from Python with enhanced type safety
-- ✅ **Modern web stack** using PIXI.js for rendering
-- ✅ **Component-based architecture** for maintainability
-- ✅ **Fixed-timestep physics** for consistent gameplay
-- ✅ **Advanced visual effects** and animations
-- ✅ **Progressive difficulty** curve
-- ✅ **Hot-reload development** for rapid iteration
+# The game will be available at:
+# https://[username].github.io/icer/
+```
 
-## 🎯 **Game Mechanics**
+**Prerequisites for GitHub Pages:**
+1. Push your code to a GitHub repository named `icer`
+2. Enable GitHub Pages in repository settings
+3. Run `npm run deploy` to build and deploy
 
-### Core Interactions
-- **Ice Blocks**: Created with A/D keys, extinguish flames, melt near heat
-- **Flames**: Win condition when all are extinguished, ignite cold pots
-- **Pots**: Cold pots heat up near flames, hot pots melt ice blocks
-- **Portals**: Teleport player and objects between paired portals
-- **Stones**: Heavy pushable objects for puzzle solving
-
-### Physics System
-- **Gravity simulation** for falling objects
-- **Collision detection** with object interactions
-- **Push mechanics** with weight and distance constraints
-- **Sliding mechanics** for ice blocks on smooth surfaces
-
-## 🌐 **Deployment**
-
-The TypeScript version can be deployed to any web platform:
-- **Static hosting**: GitHub Pages, Netlify, Vercel
+### Other Deployment Options
+- **Static hosting**: Netlify, Vercel
 - **CDN deployment**: Cloudflare Workers, AWS S3
 - **Self-hosting**: Any web server with static file serving
 
 ---
 
-**🎉 ICER TypeScript Edition is now a modern, type-safe puzzle game with professional-level development workflow and cross-platform deployment capabilities!**
-
-The TypeScript version demonstrates advanced game development concepts including physics simulation, complex interaction systems, modern web rendering, and type-safe architecture for maintainable codebases.
+**🎉 ICER is a fully functional ice block puzzle game with engaging gameplay and smooth graphics!**

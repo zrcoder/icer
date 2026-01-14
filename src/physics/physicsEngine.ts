@@ -1,6 +1,6 @@
 import { GameWorld } from '@/world/gameWorld';
 import { GameObject } from '@/entities/base';
-import { GRAVITY, MAX_FALL_SPEED, FIXED_TIMESTEP } from '@/game/constants';
+import { FIXED_TIMESTEP } from '@/game/constants';
 
 /**
  * Physics engine for handling gravity and collisions
@@ -61,7 +61,7 @@ export class PhysicsEngine {
   /**
    * Apply gravity to an object
    */
-  private applyGravity(object: GameObject, dt: number): void {
+  private applyGravity(object: GameObject, _dt: number): void {
     const currentY = object.gridY;
     const belowY = currentY - 1;
 

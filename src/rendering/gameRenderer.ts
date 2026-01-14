@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 import { GameWorld } from '@/world/gameWorld';
-import { CELL_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT, GRID_WIDTH, GRID_HEIGHT } from '@/game/constants';
+import { CELL_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT, GRID_WIDTH, GRID_HEIGHT, GameState } from '@/game/constants';
 import { GameObject } from '@/entities/base';
 import { GameStateManager } from '@/game/gameState';
 
@@ -248,7 +248,7 @@ export class GameRenderer {
    * Draw portal sprite
    */
   private drawPortal(sprite: PIXI.Graphics, x: number, y: number, size: number, object: GameObject): void {
-    const cooldown = (object as any).getCooldownProgress?.() || 0;
+    // const cooldown = (object as any).getCooldownProgress?.() || 0; // Reserved for future portal features
     const ready = (object as any).isReady?.();
     
     // Draw portal as glowing circle

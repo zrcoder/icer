@@ -1,6 +1,6 @@
 import { GameWorld } from '@/world/gameWorld';
-import { PhysicsEngine } from './physicsEngine';
-import { IceBlockSystem } from './iceSystem';
+import { PhysicsEngine } from '@/physics/physicsEngine';
+import { IceBlockSystem } from '@/physics/iceSystem';
 import { GameObject } from '@/entities/base';
 
 /**
@@ -8,19 +8,19 @@ import { GameObject } from '@/entities/base';
  */
 export class GameRulesSystem {
   private gameWorld: GameWorld;
-  private physicsEngine: PhysicsEngine;
-  private iceSystem: IceBlockSystem;
+  // private _physicsEngine: PhysicsEngine; // Reserved for future physics integration
+  // private _iceSystem: IceBlockSystem; // Reserved for future ice system integration
 
-  constructor(gameWorld: GameWorld, physicsEngine: PhysicsEngine, iceSystem: IceBlockSystem) {
+  constructor(gameWorld: GameWorld, _physicsEngine: PhysicsEngine, _iceSystem: IceBlockSystem) {
     this.gameWorld = gameWorld;
-    this.physicsEngine = physicsEngine;
-    this.iceSystem = iceSystem;
+    // this._physicsEngine = physicsEngine;
+    // this._iceSystem = iceSystem;
   }
 
   /**
    * Update game rules
    */
-  update(dt: number): void {
+  update(_dt: number): void {
     // Check all object interactions
     this.checkObjectInteractions();
     
@@ -69,8 +69,8 @@ export class GameRulesSystem {
    * Handle interaction between two objects
    */
   private handleInteraction(obj1: GameObject, obj2: GameObject): void {
-    const type1 = obj1.getType();
-    const type2 = obj2.getType();
+    // const type1 = obj1.getType();
+    // const type2 = obj2.getType();
 
     // Fire interactions
     this.handleFireInteractions(obj1, obj2);
@@ -196,7 +196,7 @@ export class GameRulesSystem {
    * Check win condition
    */
   private checkWinCondition(): void {
-    const flameCount = this.gameWorld.countObjectsOfType('flame');
+    // const flameCount = this.gameWorld.countObjectsOfType('flame'); // Win condition handled in game class
     // Win condition handled in game class
   }
 
@@ -292,7 +292,7 @@ export class GameRulesSystem {
     flame.destroy();
   }
 
-  private meltIceBlock(ice: GameObject, flame: GameObject): void {
+  private meltIceBlock(ice: GameObject, _flame: GameObject): void {
     (ice as any).startMelting?.();
   }
 
@@ -336,7 +336,7 @@ export class GameRulesSystem {
     }
   }
 
-  private spreadFire(flame: GameObject, target: GameObject): void {
+  private spreadFire(_flame: GameObject, target: GameObject): void {
     if (target.getProperty('flammable')) {
       // Create new flame at target position
       // This would create a new flame object

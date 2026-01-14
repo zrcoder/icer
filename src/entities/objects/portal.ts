@@ -67,7 +67,7 @@ export class Portal extends GameObject {
     this.onTeleport(obj);
   }
 
-  protected onTeleport(obj: GameObject): void {
+  protected onTeleport(_obj: GameObject): void {
     // Override for visual effects
   }
 

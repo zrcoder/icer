@@ -107,9 +107,9 @@ export class IceBlockSystem {
    */
   private isOnHotPot(iceBlock: IceBlock, gameWorld: GameWorld): boolean {
     const belowObject = gameWorld.getObjectAt(iceBlock.gridX, iceBlock.gridY - 1);
-    return belowObject && 
+    return !!(belowObject && 
            belowObject.getType() === 'pot' && 
-           belowObject.getProperty('is_hot', false);
+           (belowObject.getProperty('is_hot', false) as boolean));
   }
 
   /**

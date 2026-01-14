@@ -1,0 +1,16 @@
+export default {
+  name: "Movement Basics",
+  difficulty: "tutorial",
+  author: "ICER Team",
+  description: "Learn basic movement controls",
+  optimal_moves: 5,
+  optimal_time: 10,
+  grid: [
+    "WWWWWWWWWW",
+    "W........W",
+    "W..P.....W",
+    "W........W",
+    "W....F...W",
+    "WWWWWWWWWW"
+  ]
+};

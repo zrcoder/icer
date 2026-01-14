@@ -9,7 +9,6 @@ import { Difficulty } from '@/game/constants';
  * Level data structure
  */
 export interface Level {
-  id: string;
   name: string;
   difficulty: Difficulty;
   width: number;
@@ -19,6 +18,34 @@ export interface Level {
   optimalTime?: number;
   description?: string;
 }
+
+/**
+ * Level section info
+ */
+export interface SectionInfo {
+  section: number;
+  name?: string;
+  levelCount: number;
+}
+
+/**
+ * Level info in a section
+ */
+export interface LevelInfo {
+  levelId: string;
+  level: number;
+  name?: string;
+  difficulty?: Difficulty;
+}
+
+/**
+ * Known sections and levels configuration
+ */
+const SECTIONS_CONFIG = {
+  1: { name: 'Tutorial Section', levels: [1, 2] },
+  2: { name: 'Basic Section', levels: [1, 2] },
+  3: { name: 'Advanced Section', levels: [1] }
+};
 
 /**
  * Level manager for loading and managing game levels
@@ -45,126 +72,101 @@ export class LevelManager {
     // this.gameRules = gameRules;
     // this.physicsEngine = physicsEngine;
     // this.iceSystem = iceSystem;
-    
-    this.loadBuiltInLevels();
   }
 
   /**
-   * Load built-in levels
+   * Get available sections
    */
-  private loadBuiltInLevels(): void {
-    const builtInLevels: Level[] = [
-      {
-        id: 'tutorial_1',
-        name: 'Movement Basics',
-        difficulty: Difficulty.TUTORIAL,
-        width: 10,
-        height: 8,
-        optimalMoves: 5,
-        optimalTime: 10,
-        description: 'Learn basic movement controls',
-        data: [
-          'WWWWWWWWWW',
-          'W........W',
-          'W..P.....W',
-          'W........W',
-          'W....F...W',
-          'WWWWWWWWWW'
-        ]
-      },
-      {
-        id: 'tutorial_2',
-        name: 'Ice Creation',
-        difficulty: Difficulty.TUTORIAL,
-        width: 12,
-        height: 8,
-        optimalMoves: 8,
-        optimalTime: 15,
-        description: 'Master ice magic',
-        data: [
-          'WWWWWWWWWWWW',
-          'W..........W',
-          'W..P.......W',
-          'W....F.....W',
-          'W..........W',
-          'WWWWWWWWWWWW'
-        ]
-      },
-      {
-        id: 'basic_1',
-        name: 'Ice Bridge',
-        difficulty: Difficulty.BASIC,
-        width: 15,
-        height: 10,
-        optimalMoves: 15,
-        optimalTime: 30,
-        description: 'Build an ice bridge to reach the flame',
-        data: [
-          'WWWWWWWWWWWWWWW',
-          'W.............W',
-          'W..P.........W',
-          'W.............W',
-          'WWW.....WWWWWWW',
-          '...............',
-          '........F.....',
-          'WWWWWWWWWWWWWW'
-        ]
-      },
-      {
-        id: 'basic_2',
-        name: 'Stone Pusher',
-        difficulty: Difficulty.BASIC,
-        width: 12,
-        height: 10,
-        optimalMoves: 12,
-        optimalTime: 25,
-        description: 'Use stones to solve the puzzle',
-        data: [
-          'WWWWWWWWWWWW',
-          'W..........W',
-          'W..P..S....W',
-          'W..........W',
-          'WWWW...WWWWWW',
-          '............F',
-          'WWWWWWWWWWWW'
-        ]
-      },
-      {
-        id: 'medium_1',
-        name: 'Portal Maze',
-        difficulty: Difficulty.MEDIUM,
-        width: 20,
-        height: 12,
-        optimalMoves: 20,
-        optimalTime: 45,
-        description: 'Navigate through portals to extinguish all flames',
-        data: [
-          'WWWWWWWWWWWWWWWWWWWW',
-          'W..................W',
-          'W..P....1.........W',
-          'W..................W',
-          'WWWWWW....WWWWWWWWWW',
-          '..................W',
-          'W....F...........2W',
-          'W..................W',
-          'WWWWWW....WWWWWWWWWW',
-          '..................W',
-          'W............F....W',
-          'WWWWWWWWWWWWWWWWWWWW'
-        ]
-      }
-    ];
+  getSections(): SectionInfo[] {
+    const sections: SectionInfo[] = [];
+    
+    Object.entries(SECTIONS_CONFIG).forEach(([section, config]) => {
+      sections.push({
+        section: parseInt(section),
+        name: config.name,
+        levelCount: config.levels.length
+      });
+    });
+    
+    // Sort by section number
+    sections.sort((a, b) => a.section - b.section);
+    return sections;
+  }
 
-    for (const level of builtInLevels) {
-      this.levels.set(level.id, level);
+  /**
+   * Get levels in a specific section
+   */
+  async getLevelsInSection(section: number): Promise<LevelInfo[]> {
+    const levels: LevelInfo[] = [];
+    const config = (SECTIONS_CONFIG as any)[section];
+    
+    if (!config) {
+      console.warn(`Section ${section} not found`);
+      return levels;
+    }
+    
+    // Load each level to get metadata
+    for (const levelNum of config.levels) {
+      const levelId = `${section}-${levelNum}`;
+      const levelData = await this.loadLevelData(section, levelNum);
+      
+      levels.push({
+        levelId,
+        level: levelNum,
+        name: levelData?.name,
+        difficulty: levelData?.difficulty
+      });
+    }
+    
+    return levels;
+  }
+
+  /**
+   * Load level data dynamically
+   */
+  private async loadLevelData(section: number, level: number): Promise<Level | null> {
+    const levelId = `${section}-${level}`;
+    
+    // Check cache first
+    if (this.levels.has(levelId)) {
+      return this.levels.get(levelId)!;
+    }
+    
+    try {
+      const levelModule = await import(`./levels/${section}/${level}.js`);
+      const levelData = levelModule.default;
+      
+      if (!levelData || !levelData.grid) {
+        throw new Error(`Invalid level data structure`);
+      }
+      
+      const processedLevel: Level = {
+        name: levelData.name || `Level ${section}-${level}`,
+        difficulty: this.parseDifficulty(levelData.difficulty || 'basic'),
+        width: Math.max(...levelData.grid.map((row: string) => row.length)),
+        height: levelData.grid.length,
+        data: levelData.grid,
+        optimalMoves: levelData.optimal_moves,
+        optimalTime: levelData.optimal_time,
+        description: levelData.description
+      };
+      
+      // Cache the level
+      this.levels.set(levelId, processedLevel);
+      return processedLevel;
+    } catch (error) {
+      console.error(`Failed to load level ${levelId}:`, error);
+      return null;
     }
   }
 
   /**
-   * Load a level by ID
+   * Load a level by section and level number
    */
-  loadLevel(levelId: string): boolean {
-    const level = this.levels.get(levelId);
+  async loadLevel(section: number, levelNum: number): Promise<boolean> {
+    const levelId = `${section}-${levelNum}`;
+    
+    const level = await this.loadLevelData(section, levelNum);
     if (!level) {
       console.error(`Level not found: ${levelId}`);
       return false;
@@ -182,6 +184,37 @@ export class LevelManager {
 
     console.log(`Loaded level: ${level.name}`);
     return true;
+  }
+
+  /**
+   * Load a level by ID (for backward compatibility)
+   */
+  async loadLevelById(levelId: string): Promise<boolean> {
+    const [section, level] = levelId.split('-').map(Number);
+    if (isNaN(section) || isNaN(level)) {
+      console.error(`Invalid level ID format: ${levelId}`);
+      return false;
+    }
+    
+    return this.loadLevel(section, level);
+  }
+
+  /**
+   * Parse difficulty string to Difficulty enum
+   */
+  private parseDifficulty(difficultyStr: string): Difficulty {
+    switch (difficultyStr.toLowerCase()) {
+      case 'tutorial':
+        return Difficulty.TUTORIAL;
+      case 'basic':
+        return Difficulty.BASIC;
+      case 'medium':
+        return Difficulty.MEDIUM;
+      case 'hard':
+        return Difficulty.HARD;
+      default:
+        return Difficulty.BASIC;
+    }
   }
 
   /**
@@ -296,7 +329,7 @@ export class LevelManager {
   }
 
   /**
-   * Get available levels
+   * Get available levels (for backward compatibility)
    */
   getAvailableLevels(): Array<{
     levelId: string;
@@ -307,17 +340,24 @@ export class LevelManager {
     bestMoves: number;
     bestTime: number;
   }> {
-    // For now, return all levels as unlocked and incomplete
-    // In a full implementation, this would track progress
-    return Array.from(this.levels.values()).map(level => ({
-      levelId: level.id,
-      name: level.name,
-      difficulty: level.difficulty,
-      isUnlocked: true,
-      isCompleted: false,
-      bestMoves: 0,
-      bestTime: 0
-    }));
+    // For now, return all configured levels
+    const levels = [];
+    for (const [section, config] of Object.entries(SECTIONS_CONFIG)) {
+      for (const level of config.levels) {
+        const levelId = `${section}-${level}`;
+        const cachedLevel = this.levels.get(levelId);
+        levels.push({
+          levelId,
+          name: cachedLevel?.name || `Level ${levelId}`,
+          difficulty: cachedLevel?.difficulty || Difficulty.BASIC,
+          isUnlocked: true,
+          isCompleted: false,
+          bestMoves: 0,
+          bestTime: 0
+        });
+      }
+    }
+    return levels;
   }
 
   /**
@@ -354,8 +394,8 @@ export class LevelManager {
   /**
    * Add custom level
    */
-  addCustomLevel(level: Level): void {
-    this.levels.set(level.id, level);
+  addCustomLevel(levelId: string, level: Level): void {
+    this.levels.set(levelId, level);
   }
 
   /**
@@ -366,18 +406,25 @@ export class LevelManager {
   }
 
   /**
-   * Get all levels
+   * Get all loaded levels
    */
   getAllLevels(): Level[] {
     return Array.from(this.levels.values());
   }
 
   /**
+   * Get all loaded levels with their IDs
+   */
+  getAllLevelsWithIds(): Array<{ id: string; level: Level }> {
+    return Array.from(this.levels.entries()).map(([id, level]) => ({ id, level }));
+  }
+
+  /**
    * Restart current level
    */
-  restartLevel(): void {
+  async restartLevel(): Promise<void> {
     if (this.currentLevelId) {
-      this.loadLevel(this.currentLevelId);
+      await this.loadLevelById(this.currentLevelId);
     }
   }
 }

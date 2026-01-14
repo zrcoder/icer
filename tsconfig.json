@@ -6,6 +6,7 @@
     "skipLibCheck": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "allowJs": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
@@ -27,6 +28,6 @@
       "@/rules/*": ["src/rules/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.js"],
   "exclude": ["node_modules", "dist"]
 }

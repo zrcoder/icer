@@ -29,7 +29,7 @@ export class Game {
   private lastTime: number = 0;
   // private _accumulator: number = 0; // Reserved for future physics implementation
 
-  constructor() {
+constructor() {
     // Initialize canvas
     this.canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
     if (!this.canvas) {
@@ -47,7 +47,7 @@ export class Game {
     this.stateManager = new GameStateManager();
     this.inputHandler = new InputHandler();
     this.renderer = new GameRenderer(this.canvas, this.gameWorld, this.stateManager);
-    
+     
     // Initialize physics systems
     this.physicsEngine = new PhysicsEngine(this.gameWorld);
     this.iceSystem = new IceBlockSystem();
@@ -62,8 +62,11 @@ export class Game {
     // Setup input callbacks
     this.setupInputCallbacks();
     
-    // Initialize game
-    this.initializeGame();
+    // Initialize game asynchronously
+    this.initializeGame().then(() => {
+      // Start game loop after initialization
+      this.start();
+    });
   }
 
   /**
@@ -98,14 +101,16 @@ export class Game {
   }
 
   /**
-   * Initialize game with tutorial level
+   * Initialize game and load level for quick start
    */
-  private initializeGame(): void {
-    // Load first tutorial level
-    this.levelManager.loadLevel('tutorial_1');
+  private async initializeGame(): Promise<void> {
+    // Preload first level for quick start (section 1, level 1)
+    await this.levelManager.loadLevel(1, 1);
     this.player = this.levelManager.getPlayer();
     this.stateManager.changeState(GameState.MENU);
   }
+
+  
 
   /**
    * Reset current level
@@ -179,7 +184,9 @@ export class Game {
     for (let i = 0; i < Math.min(6, levels.length); i++) {
       const key = (i + 1).toString();
       if (this.inputHandler.isKeyJustPressed(key)) {
-        this.levelManager.loadLevel(levels[i].levelId);
+        // Parse levelId from "section-level" format
+        const [section, level] = levels[i].levelId.split('-').map(Number);
+        this.levelManager.loadLevel(section, level);
         this.player = this.levelManager.getPlayer();
         this.stateManager.changeState(GameState.PLAYING);
         this.stateManager.resetLevelData();
@@ -205,7 +212,9 @@ export class Game {
     for (let i = 0; i < Math.min(6, levels.length); i++) {
       const key = (i + 1).toString();
       if (this.inputHandler.isKeyJustPressed(key)) {
-        this.levelManager.loadLevel(levels[i].levelId);
+        // Parse levelId from "section-level" format
+        const [section, level] = levels[i].levelId.split('-').map(Number);
+        this.levelManager.loadLevel(section, level);
         this.player = this.levelManager.getPlayer();
         this.stateManager.changeState(GameState.PLAYING);
         this.stateManager.resetLevelData();

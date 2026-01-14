@@ -371,7 +371,7 @@ export class GameRenderer {
 
     const title = new PIXI.Text('ICER', titleStyle);
     title.anchor.set(0.5);
-    title.position.set(WINDOW_WIDTH / 2, 150);
+    title.position.set(WINDOW_WIDTH / 2, 50);
     this.uiContainer.addChild(title);
 
     // Subtitle
@@ -383,10 +383,32 @@ export class GameRenderer {
 
     const subtitle = new PIXI.Text('Ice Block Puzzle Game', subtitleStyle);
     subtitle.anchor.set(0.5);
-    subtitle.position.set(WINDOW_WIDTH / 2, 200);
+    subtitle.position.set(WINDOW_WIDTH / 2, 100);
     this.uiContainer.addChild(subtitle);
 
-    // TODO: Add level selection
+    // Instructions
+    const instructionStyle = new PIXI.TextStyle({
+      fontFamily: 'Arial',
+      fontSize: 16,
+      fill: 0xFFFFFF,
+    });
+
+    const instructions = new PIXI.Text('Press ENTER to start with Level 1-1', instructionStyle);
+    instructions.anchor.set(0.5);
+    instructions.position.set(WINDOW_WIDTH / 2, 250);
+    this.uiContainer.addChild(instructions);
+
+    // Quick play instructions
+    const quickStyle = new PIXI.TextStyle({
+      fontFamily: 'Arial',
+      fontSize: 14,
+      fill: 0xAAAAAA,
+    });
+
+    const quickPlay = new PIXI.Text('Number keys 1-6: Quick play levels (when unlocked)', quickStyle);
+    quickPlay.anchor.set(0.5);
+    quickPlay.position.set(WINDOW_WIDTH / 2, 280);
+    this.uiContainer.addChild(quickPlay);
   }
 
   /**

@@ -1,0 +1,1 @@
+const W={name:"Ice Creation",difficulty:"tutorial",author:"ICER Team",description:"Master ice magic",optimal_moves:8,optimal_time:15,grid:["WWWWWWWWWWWW","W..........W","W..P.......W","W....F.....W","W..........W","WWWWWWWWWWWW"]};export{W as default};

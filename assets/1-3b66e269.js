@@ -1,0 +1,1 @@
+const W={name:"Ice Bridge",difficulty:"basic",author:"ICER Team",description:"Build an ice bridge to reach the flame",optimal_moves:15,optimal_time:30,grid:["WWWWWWWWWWWWWWW","W.............W","W..P.........W","W.............W","WWW.....WWWWWWW","...............","........F.....","WWWWWWWWWWWWWW"]};export{W as default};

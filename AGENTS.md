@@ -1,347 +1,231 @@
-# ICER TypeScript Game Development Guide
+# AGENTS.md
 
-This document contains development guidelines and commands for working on the ICER TypeScript ice block puzzle game.
+This file contains guidelines and commands for agentic coding agents working on the ICER Go project.
 
-## Development Commands
+## Project Overview
 
-### Running the Game
+ICER is a 2D ice block puzzle game built with Go and the Ebiten game engine. The project follows standard Go project structure with domain-driven design principles.
+
+## Build, Test, and Lint Commands
+
+### Building
 ```bash
-# Development server with hot-reload
-npm run dev
+# Build the main executable
+go build -o icer ./main.go
 
-# Production build
-npm run build
+# Build with race detection (for development)
+go build -race -o icer ./main.go
 
-# Preview production build
-npm run preview
-
-# Build and serve locally
-npm run build && npm run preview
+# Build for different platforms
+GOOS=linux GOARCH=amd64 go build -o icer-linux ./main.go
+GOOS=windows GOARCH=amd64 go build -o icer.exe ./main.go
+GOOS=darwin GOARCH=amd64 go build -o icer-mac ./main.go
 ```
 
-### Development Workflow
+### Running
 ```bash
-# Type checking
-npm run type-check
+# Run the game
+go run main.go
 
-# Linting code
-npm run lint
-
-# Fix linting issues
-npm run lint:fix
-
-# Testing
-npm test
-
-# Clean build artifacts
-npm run clean
+# Run with verbose logging
+go run -v main.go
 ```
 
-### Package Management
+### Testing
 ```bash
-# Install dependencies
-npm install
+# Run all tests in the project
+go test ./...
 
-# Add new dependency
-npm install <package>
+# Run tests in a specific package
+go test ./internal/game
+go test ./internal/sprites
+go test ./internal/utils
+go test ./internal/levels
+go test ./internal/physics
+go test ./internal/rendering
 
-# Add dev dependency
-npm install -D <package>
+# Run a single test function
+go test -run TestFunctionName ./internal/package
 
-# Update dependencies
-npm update
+# Run tests with verbose output
+go test -v ./...
+
+# Run tests with coverage
+go test -cover ./...
+
+# Generate coverage report
+go test -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out -o coverage.html
+
+# Run benchmarks
+go test -bench=. ./...
+
+# Run tests with race detection
+go test -race ./...
 ```
 
-## Project Structure & Architecture
+### Code Quality
+```bash
+# Format all Go files
+go fmt ./...
 
-### Core Architecture
-- **TypeScript strict mode** with comprehensive type safety
-- **Component-based entity system** with `GameObject` base class
-- **Fixed-timestep physics engine** for consistent gameplay
-- **Grid-based world system** (20x15 grid by default)
-- **State management** through `GameStateManager`
-- **Level loading** via ASCII level definitions
-- **PIXI.js rendering** for smooth 2D graphics
-- **Vite build system** for modern development
+# Run static analysis
+go vet ./...
 
-### Module Organization
+# Run go vet on specific package
+go vet ./internal/game
+
+# Run with additional vet checks
+go vet -vettool=$(which shadow) ./...
+
+# Format imports
+goimports -w .
 ```
-src/
-├── game/              # Main game loop, state, constants
-├── entities/          # Game objects (player, walls, items)
-├── physics/           # Physics engine and systems
-├── world/             # Grid system and game world
-├── levels/            # Level loading and management
-├── rendering/         # PIXI.js rendering and UI effects
-├── input/             # Input handling system
-├── utils/             # Helper classes (Vector2, etc.)
-└── rules/             # Game rules and interactions
+
+## Project Structure
+
+```
+icer/
+├── main.go                 # Entry point
+├── go.mod                  # Go module definition
+├── internal/               # Private application code
+│   ├── game/              # Core game logic and state
+│   ├── sprites/           # Game objects and entities
+│   ├── utils/             # Shared utilities (vectors, helpers)
+│   ├── levels/            # Level management and loading
+│   ├── physics/           # Physics engine and collision detection
+│   └── rendering/         # Rendering and graphics
+└── README.md              # Project documentation
 ```
 
 ## Code Style Guidelines
 
-### TypeScript Configuration
-- **Strict type checking** enabled
-- **Path mapping** for clean imports (`@/` shortcuts)
-- **ESNext modules** with bundler resolution
-- **No implicit any** - all types must be explicit
-- **Unused variables** flagged as errors
-
 ### Import Organization
-```typescript
-// Standard library imports first
-import { Game, GameObject } from '@/game';
-import { Vector2 } from '@/utils';
+- Use `goimports` for consistent import formatting
+- Group imports in three sections: standard library, third-party, internal
+- Sort alphabetically within each group
+- Import only what you use
 
-// Third-party imports
-import * as PIXI from 'pixi.js';
-
-// Type imports
-import type { GameState } from '@/game/gameState';
-import type { Level } from '@/levels/levelManager';
-```
-
-### Class Naming & Structure
-- Use **PascalCase** for class names (`GameObject`, `PhysicsEngine`)
-- Use **camelCase** for methods and variables (`update()`, `gridX`)
-- Use **protected/public** modifiers appropriately
-- Include comprehensive JSDoc comments for all public methods
-- Use **type annotations** for all parameters and return types
+### Naming Conventions
+- **Package names**: lowercase, single words, descriptive (`game`, `sprites`, `utils`)
+- **Constants**: `UPPER_SNAKE_CASE` for exported constants, `lowerSnakeCase` for unexported
+- **Variables**: `camelCase` (exported starts with uppercase, unexported with lowercase)
+- **Functions**: `camelCase` following same export rules
+- **Interfaces**: Simple, descriptive names ending in "er" (e.g., `Sprite`, `Renderer`)
+- **Structs**: `CamelCase`, descriptive nouns
 
 ### Type Definitions
-```typescript
-interface GameData {
-  moves: number;
-  timeElapsed: number;
-  levelCompleted: boolean;
-  bestMoves: number;
-  bestTime: number;
-}
-
-enum GameState {
-  MENU = 'menu',
-  PLAYING = 'playing',
-  PAUSED = 'paused',
-  WIN = 'win',
-  LOSE = 'lose'
-}
-
-class Vector2 {
-  constructor(public x: number = 0.0, public y: number = 0.0) {}
-  
-  add(other: Vector2): Vector2 {
-    return new Vector2(this.x + other.x, this.y + other.y);
-  }
-}
-```
+- Use meaningful type names
+- Prefer composition over inheritance
+- Define clear interfaces for contracts between packages
+- Use type aliases where appropriate for clarity
 
 ### Error Handling
-```typescript
-// Graceful handling of missing dependencies
-import * as PIXI from 'pixi.js';
+- Always handle errors explicitly
+- Use `if err != nil` pattern consistently
+- Wrap errors with context using `fmt.Errorf` or custom error types
+- Return errors as the last return value
+- Log errors at appropriate levels
 
-try {
-  const app = new PIXI.Application({
-    width: WINDOW_WIDTH,
-    height: WINDOW_HEIGHT,
-    backgroundColor: 0x000000
-  });
-} catch (error) {
-  console.error('Failed to initialize PIXI:', error);
-  throw new Error('Graphics initialization failed');
-}
+### Function Design
+- Keep functions small and focused (single responsibility)
+- Use clear, descriptive names
+- Limit parameter count (consider struct for many parameters)
+- Return early to reduce nesting
+- Document exported functions with Godoc comments
 
-// Type checking with proper error messages
-function addVectors(v1: Vector2, v2: Vector2): Vector2 {
-  if (!v1 || !v2) {
-    throw new Error('Both vectors must be valid Vector2 instances');
-  }
-  return new Vector2(v1.x + v2.x, v1.y + v2.y);
-}
-```
-
-### Game Object Patterns
-```typescript
-class CustomObject extends GameObject {
-  constructor(x: number = 0, y: number = 0) {
-    super(x, y);
-    // Set object properties
-    this.setProperty('solid', true);
-    this.setProperty('pushable', false);
-    this.setProperty('weight', 1);
-  }
-  
-  getType(): string {
-    return "custom_object";
-  }
-  
-  getColor(): number {
-    return COLOR_CUSTOM;
-  }
-  
-  update(dt: number): void {
-    // Update logic here
-    super.update(dt);
-  }
-  
-  onCollision(other: GameObject): void {
-    // Handle collision with other object
-    super.onCollision(other);
-  }
-}
-```
+### Constants and Configuration
+- Define constants at package level for magic numbers
+- Group related constants in blocks
+- Use `iota` for enumerated constants
+- Configuration should be centralized and documented
 
 ## Testing Guidelines
 
 ### Test Structure
-- Use **Jest** for unit and integration tests
-- Place tests in `__tests__/` directories next to source files
-- Use TypeScript for tests with `ts-jest` preset
-- Mock external dependencies (PIXI.js, DOM APIs)
+- Place test files in the same package as the code they test
+- Name test files with `_test.go` suffix
+- Use descriptive test function names: `TestFunctionName_Condition_ExpectedResult`
+- Use table-driven tests for multiple scenarios
 
-### Test Example
-```typescript
-// __tests__/utils/vector2.test.ts
-import { Vector2 } from '@/utils/vector2';
-
-describe('Vector2', () => {
-  test('should create vector with default values', () => {
-    const v = new Vector2();
-    expect(v.x).toBe(0);
-    expect(v.y).toBe(0);
-  });
-
-  test('should add two vectors correctly', () => {
-    const v1 = new Vector2(1, 2);
-    const v2 = new Vector2(3, 4);
-    const result = v1.add(v2);
+### Test Organization
+```go
+func TestGame_Update_StateTransitions(t *testing.T) {
+    tests := []struct {
+        name     string
+        initialState State
+        input    ebiten.Key
+        expected State
+    }{
+        // test cases...
+    }
     
-    expect(result.x).toBe(4);
-    expect(result.y).toBe(6);
-  });
-});
-```
-
-## Development Workflow
-
-### Adding New Game Objects
-1. Create new class inheriting from `GameObject` in `src/entities/objects/`
-2. Implement required methods: `getType()`, `getColor()`
-3. Set appropriate properties (`solid`, `pushable`, `weight`, etc.)
-4. Add object color constant to `src/game/constants.ts`
-5. Add rendering logic in `src/rendering/gameRenderer.ts`
-6. Add level character mapping in `src/levels/levelManager.ts`
-7. Update game rules if needed in `src/rules/gameRules.ts`
-
-### Adding New Levels
-1. Add level data to `src/levels/levelManager.ts`
-2. Follow existing level structure with ASCII characters
-3. Set optimal moves and time for scoring
-4. Test level loading and gameplay
-5. Update level selection if needed
-
-### Physics Integration
-- All physics calculations should use the `PhysicsEngine` class
-- Object interactions should be handled through `GameRulesSystem`
-- Use fixed timestep for consistent physics
-- Handle edge cases (boundaries, max speeds, etc.)
-
-## Performance Optimization
-
-### TypeScript Best Practices
-- Use **readonly** for immutable data
-- Leverage **type inference** where appropriate
-- Use **generics** for reusable components
-- Enable **strict null checks** and handle nulls explicitly
-
-### Rendering Performance
-- **Object pooling** for frequently created objects
-- **Batch draw calls** where possible
-- **Minimize state changes** in PIXI.js
-- Use **delta time** for frame-independent movement
-
-### Memory Management
-- **Clean up event listeners** in destroy methods
-- **Remove object references** to prevent memory leaks
-- **Use weak references** for temporary object storage
-- **Monitor memory usage** with browser dev tools
-
-## Code Quality Standards
-
-### Linting Rules
-- **No unused variables** - use `_` prefix for unused parameters
-- **Explicit returns** - all functions must have return type annotations
-- **Consistent naming** - follow TypeScript conventions
-- **No implicit any** - all types must be explicit
-
-### Documentation
-- All public methods must have JSDoc comments
-- Complex algorithms should have inline comments
-- Types and interfaces need clear descriptions
-- Update README.md when adding major features
-
-## Development Tools
-
-### VS Code Extensions (Recommended)
-- **TypeScript Importer** - automatic import management
-- **ESLint** - real-time linting feedback
-- **Prettier** - code formatting integration
-- **GitLens** - enhanced Git capabilities
-
-### Browser Testing
-- **Chrome DevTools** - debugging and profiling
-- **Firefox Developer Tools** - cross-browser testing
-- **Network throttling** - performance testing
-- **Mobile emulation** - responsive testing
-
-## Deployment
-
-### Build Process
-```bash
-# Development build with source maps
-npm run build
-
-# Production build (minified)
-npm run build -- --mode production
-
-# Analyze bundle size
-npm run build -- --analyze
-```
-
-### Deployment Targets
-- **Static hosting** - GitHub Pages, Netlify, Vercel
-- **CDN deployment** - Cloudflare, AWS S3
-- **Container deployment** - Docker, Kubernetes
-- **PWA** - progressive web app capabilities
-
-## Dependencies
-- **pixi.js 7.3.2** - 2D graphics rendering engine
-- **typescript 5.0.2** - TypeScript compiler
-- **vite 4.2.1** - Build tool and dev server
-- **jest 29.5.0** - Testing framework
-- **eslint 8.37.0** - Code linting
-- **@types/jest 29.5.0** - Jest type definitions
-
-## Troubleshooting
-
-### Common Issues
-- **Type errors**: Check tsconfig.json and import paths
-- **Module resolution**: Verify package.json and node_modules
-- **Performance**: Use browser dev tools profiling
-- **Build failures**: Check for circular dependencies
-
-### Debug Mode
-```typescript
-// Enable debug mode
-const DEBUG = process.env.NODE_ENV === 'development';
-
-if (DEBUG) {
-  console.log('Debug info:', data);
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            // test implementation
+        })
+    }
 }
 ```
 
-### Hot Reload Issues
-- Ensure Vite dev server is running
-- Check for syntax errors in TypeScript
-- Verify file watching is working
-- Refresh browser if needed
+### Testing Best Practices
+- Write unit tests for business logic
+- Mock external dependencies (Ebiten engine calls)
+- Test both success and failure paths
+- Use `testing.T` methods for assertions
+- Keep tests fast and deterministic
+
+## Game-Specific Guidelines
+
+### Ebiten Integration
+- Follow Ebiten lifecycle patterns
+- Handle input in `Update()` method
+- Perform rendering in `Draw()` method
+- Use consistent coordinate system (grid-based)
+- Maintain 60 FPS target
+
+### Component Architecture
+- Use interface-based design for game objects
+- Implement `Sprite` interface for all game entities
+- Separate physics, rendering, and game logic
+- Use composition for complex behaviors
+
+### State Management
+- Use centralized state management
+- Implement clear state transitions
+- Handle state updates in `Update()` method
+- Render based on current state
+
+## Dependencies
+
+### Required Libraries
+- `github.com/hajimehoshi/ebiten/v2` - Main game engine
+- `github.com/ebitenui/ebitenui` - UI components
+- `github.com/BurntSushi/toml` - Configuration parsing
+
+### Version Management
+- Use Go modules for dependency management
+- Pin to specific versions for stability
+- Update dependencies regularly
+- Review dependency changes for breaking changes
+
+## Development Workflow
+
+1. **Before Coding**: Run `go mod tidy` to clean dependencies
+2. **During Development**: Use `go fmt ./...` and `go vet ./...` frequently
+3. **Before Commit**: Run `go test ./...` to ensure all tests pass
+4. **Code Review**: Ensure code follows all style guidelines
+
+## Performance Considerations
+
+- Use object pooling for frequently created/destroyed objects
+- Minimize allocations in game loop
+- Profile with `go test -bench` for performance bottlenecks
+- Use `sync.Pool` for memory management in hot paths
+
+## Debugging
+
+- Use `log.Printf` for debugging output
+- Implement debug modes with conditional compilation
+- Use Ebiten's debug utilities when appropriate
+- Profile with `pprof` for performance analysis

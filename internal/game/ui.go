@@ -19,6 +19,7 @@ import (
 var defaultFace = DefaultFont()
 
 func (g *Game) initUI() {
+	g.titleContainer = widget.NewContainer()
 	g.createSelectUI()
 	g.createScenUI()
 }
@@ -121,15 +122,6 @@ func (g *Game) createScenUI() {
 	root := widget.NewContainer(
 		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(colornames.Green)),
 	)
-	g.sceneTitleInput = widget.NewTextInput(
-		widget.TextInputOpts.Face(&defaultFace),
-		widget.TextInputOpts.Color(&widget.TextInputColor{
-			Idle:     colornames.Orange,
-			Disabled: colornames.Orange,
-		}),
-	)
-	g.sceneTitleInput.GetWidget().Disabled = true
-	root.AddChild(g.sceneTitleInput)
 	g.sceneUI.Container = root
 }
 
@@ -140,11 +132,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	case StateSelect:
 		g.selectUI.Draw(screen)
 	case StatePlaying:
-		titile := fmt.Sprintf(
-			"ICERXXX %d-%d",
-			g.levelsManager.CurrentSection().ID+1, g.levelsManager.CurrentLevel().ID+1,
-		)
-		g.sceneTitleInput.SetText(titile)
+		g.updateTitle()
 		g.sceneUI.Draw(screen)
 	case StateWin:
 		g.drawGame(screen)
@@ -153,6 +141,26 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.drawGame(screen)
 		g.drawLose(screen)
 	}
+}
+
+func (g *Game) updateTitle() {
+	g.sceneUI.Container.RemoveChild(g.titleContainer)
+	g.titleContainer.RemoveChildren()
+	label := widget.NewLabel(
+		widget.LabelOpts.Text(
+			fmt.Sprintf(
+				"ICE %d-%d",
+				g.levelsManager.CurrentSection().ID+1, g.levelsManager.CurrentLevel().ID+1,
+			),
+			&defaultFace,
+			&widget.LabelColor{
+				Idle:     colornames.Orange,
+				Disabled: colornames.Orange,
+			},
+		),
+	)
+	g.titleContainer.AddChild(label)
+	g.sceneUI.Container.AddChild(g.titleContainer)
 }
 
 func DefaultFont() text.Face {

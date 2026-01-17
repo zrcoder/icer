@@ -11,13 +11,13 @@ import (
 
 // Game represents the main game state and implements ebiten.Game
 type Game struct {
-	state           State
-	player          *sprites.Player
-	objects         []sprites.Sprite
-	levelsManager   *levels.Manager
-	selectUI        ebitenui.UI
-	sceneUI         ebitenui.UI
-	sceneTitleInput *widget.TextInput
+	state          State
+	player         *sprites.Player
+	objects        []sprites.Sprite
+	levelsManager  *levels.Manager
+	selectUI       ebitenui.UI
+	sceneUI        ebitenui.UI
+	titleContainer *widget.Container
 }
 
 // State represents the current state of the game

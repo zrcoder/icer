@@ -1,9 +1,9 @@
 package game
 
 import (
-	"image/color"
 	"log"
 
+	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/zrcoder/icer/internal/levels"
@@ -16,6 +16,7 @@ type Game struct {
 	player        *sprites.Player
 	objects       []sprites.Sprite
 	levelsManager *levels.Manager
+	selectUI      ebitenui.UI
 }
 
 // State represents the current state of the game
@@ -46,10 +47,12 @@ func NewGame() *Game {
 	ebiten.SetWindowSize(WindowWidth, WindowHeight)
 	ebiten.SetWindowTitle("ICER - Ice Block Puzzle Game")
 
-	return &Game{
+	g := &Game{
 		state:         StateSelect,
 		levelsManager: levels.NewManager(),
 	}
+	g.initUI()
+	return g
 }
 
 // Update updates the game logic
@@ -63,23 +66,6 @@ func (g *Game) Update() error {
 		g.updateGameOver()
 	}
 	return nil
-}
-
-// Draw renders the game
-func (g *Game) Draw(screen *ebiten.Image) {
-	screen.Fill(color.RGBA{20, 20, 40, 255}) // Dark blue background
-	switch g.state {
-	case StateSelect:
-		g.drawSelect(screen)
-	case StatePlaying:
-		g.drawGame(screen)
-	case StateWin:
-		g.drawGame(screen)
-		g.drawWin(screen)
-	case StateLose:
-		g.drawGame(screen)
-		g.drawLose(screen)
-	}
 }
 
 // Layout returns the screen dimensions

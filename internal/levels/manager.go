@@ -48,6 +48,14 @@ func (m *Manager) SetCurrentSection(i int) {
 	m.Sections[i].loadLevels()
 }
 
+func (m *Manager) SetCurrentLevel(i int) {
+	m.currentLevel = i
+}
+
+func (m *Manager) CurrentSection() *Section {
+	return &m.Sections[m.currentSection]
+}
+
 func (m *Manager) loadMeta() {
 	m.Sections = make([]Section, sections.Count)
 	for i := range m.Sections {

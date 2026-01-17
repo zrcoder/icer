@@ -5,4 +5,4 @@ import "embed"
 //go:embed *
 var FS embed.FS
 
-const Count = 3
+const Count = 1

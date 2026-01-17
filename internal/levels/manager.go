@@ -1,98 +1,105 @@
 package levels
 
 import (
-	"bytes"
 	"fmt"
-	"log"
+	"strings"
+
 	"strconv"
 
 	"github.com/BurntSushi/toml"
+	"github.com/charmbracelet/log"
 	"github.com/zrcoder/icer/internal/levels/sections"
 	"github.com/zrcoder/icer/internal/sprites"
 )
 
 type Section struct {
 	Meta
-	LevelCount int     `toml:"levels"`
-	Levels     []Level `toml:"-"`
+	LevelCount int `toml:"levels"`
+	levels     []*Level
 }
 
 type Level struct {
 	Meta
-	Grid    []byte `toml:"grid"`
+	Grid    string `toml:"grid"`
 	grid    [][]sprites.Sprite
-	portals map[byte][]*sprites.Portal
+	portals map[rune][]*sprites.Portal
 }
 
 type Meta struct {
-	ID          int
+	ID          int    `toml:"-"`
 	Title       string `toml:"title"`
 	Description string `toml:"description"`
 }
 
 type Manager struct {
-	Sections       []Section
-	currentLevel   int
-	currentSection int
+	Sections       []*Section
+	currentLevel   *Level
+	currentSection *Section
 }
 
 func NewManager() *Manager {
 	m := &Manager{}
-	m.loadMeta()
+	m.load()
+	log.Debug("levels loaded",
+		"sections", len(m.Sections),
+		"section", m.currentSection,
+	)
 	return m
 }
 
 func (m *Manager) SetCurrentSection(i int) {
-	m.currentSection = i
-	m.currentLevel = 0
-	m.Sections[i].loadLevels()
+	m.currentSection = m.Sections[i]
+	m.currentLevel = m.currentSection.levels[0]
 }
 
 func (m *Manager) SetCurrentLevel(i int) {
-	m.currentLevel = i
+	m.currentLevel = m.currentSection.levels[i]
 }
 
 func (m *Manager) CurrentSection() *Section {
-	return &m.Sections[m.currentSection]
+	return m.currentSection
 }
 
-func (m *Manager) loadMeta() {
-	m.Sections = make([]Section, sections.Count)
+func (m *Manager) load() {
+	m.Sections = make([]*Section, sections.Count)
 	for i := range m.Sections {
-		m.Sections[i] = m.loadSectionMeta(i)
+		m.Sections[i] = m.loadSection(i)
+		m.Sections[i].loadLevels()
+		log.Debug("section loaded", "id", i, "title", m.Sections[i].Title, "levels", m.Sections[i].LevelCount)
 	}
+	m.currentSection = m.Sections[0]
 }
 
-func (m *Manager) loadSectionMeta(section int) Section {
-	id := section + 1
-	indexPath := strconv.Itoa(id) + "/index.toml"
+func (m *Manager) loadSection(section int) *Section {
+	indexPath := strconv.Itoa(section+1) + "/index.toml"
 	indexData, err := sections.FS.ReadFile(indexPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var meta Meta
-	if err := toml.Unmarshal(indexData, &meta); err != nil {
+	res := &Section{}
+	if err := toml.Unmarshal(indexData, res); err != nil {
 		log.Fatal(err)
 	}
-	meta.ID = id
-
-	return Section{
-		Meta: meta,
-	}
+	res.ID = section
+	return res
 }
 
 func (s *Section) loadLevels() {
-	s.Levels = make([]Level, s.LevelCount)
+	s.levels = make([]*Level, s.LevelCount)
 	for i := range s.LevelCount {
-		data, err := sections.FS.ReadFile(fmt.Sprintf("%d/%d.toml", s.ID, i+1))
+		data, err := sections.FS.ReadFile(fmt.Sprintf("%d/%d.toml", s.ID+1, i+1))
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = toml.Unmarshal(data, &s.Levels[i])
+		var level = &Level{}
+		err = toml.Unmarshal(data, &level)
 		if err != nil {
 			log.Fatal(err)
 		}
+		level.ID = i
+		log.Debug("level loaded", "id", i, "title", level.Title)
+		s.levels[i] = level
 	}
 }
 
@@ -114,8 +121,8 @@ func (s *Section) loadLevel(id int) Level {
 }
 
 func (l *Level) regular() {
-	l.portals = make(map[byte][]*sprites.Portal)
-	lines := bytes.Split(l.Grid, []byte("\n"))
+	l.portals = make(map[rune][]*sprites.Portal)
+	lines := strings.Split(l.Grid, "\n")
 	l.grid = make([][]sprites.Sprite, len(lines))
 	for i, line := range lines {
 		l.grid[i] = make([]sprites.Sprite, len(line))
@@ -125,7 +132,7 @@ func (l *Level) regular() {
 	}
 }
 
-func (l *Level) createObject(char byte, x, y int) sprites.Sprite {
+func (l *Level) createObject(char rune, x, y int) sprites.Sprite {
 	switch char {
 	case 'M':
 		return sprites.NewPlayer(x, y)

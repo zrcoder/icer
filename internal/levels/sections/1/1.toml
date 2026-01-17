@@ -1,4 +1,4 @@
-name = "Movement Basics"
+title = "Movement Basics"
 description = "Learn basic movement"
 grid = """
 M          F

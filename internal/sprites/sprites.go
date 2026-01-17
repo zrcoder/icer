@@ -107,10 +107,10 @@ func (f *Flame) Draw(parent *ebiten.Image) {
 
 type Portal struct {
 	*Base
-	ID byte
+	ID rune
 }
 
-func NewPortal(id byte, x, y int) *Portal {
+func NewPortal(id rune, x, y int) *Portal {
 	portal := &Portal{
 		Base: NewBase(x, y),
 		ID:   id,

@@ -50,7 +50,7 @@ func (g *Game) createSectionContainer() *widget.Container {
 }
 
 func (g *Game) createLevelContainer() *widget.Container {
-	return createSectionLevelContainer("Level", len(g.levelsManager.CurrentSection().Levels), func(i int) {
+	return createSectionLevelContainer("Level", g.levelsManager.CurrentSection().LevelCount, func(i int) {
 		g.levelsManager.SetCurrentLevel(i)
 	})
 }

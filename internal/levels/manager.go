@@ -59,6 +59,9 @@ func (m *Manager) SetCurrentLevel(i int) {
 func (m *Manager) CurrentSection() *Section {
 	return m.currentSection
 }
+func (m *Manager) CurrentLevel() *Level {
+	return m.currentLevel
+}
 
 func (m *Manager) load() {
 	m.Sections = make([]*Section, sections.Count)
@@ -67,7 +70,7 @@ func (m *Manager) load() {
 		m.Sections[i].loadLevels()
 		log.Debug("section loaded", "id", i, "title", m.Sections[i].Title, "levels", m.Sections[i].LevelCount)
 	}
-	m.currentSection = m.Sections[0]
+	m.SetCurrentSection(0)
 }
 
 func (m *Manager) loadSection(section int) *Section {

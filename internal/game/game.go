@@ -1,9 +1,8 @@
 package game
 
 import (
-	"log"
-
 	"github.com/ebitenui/ebitenui"
+	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/zrcoder/icer/internal/levels"
@@ -12,11 +11,13 @@ import (
 
 // Game represents the main game state and implements ebiten.Game
 type Game struct {
-	state         State
-	player        *sprites.Player
-	objects       []sprites.Sprite
-	levelsManager *levels.Manager
-	selectUI      ebitenui.UI
+	state           State
+	player          *sprites.Player
+	objects         []sprites.Sprite
+	levelsManager   *levels.Manager
+	selectUI        ebitenui.UI
+	sceneUI         ebitenui.UI
+	sceneTitleInput *widget.TextInput
 }
 
 // State represents the current state of the game
@@ -27,8 +28,6 @@ const (
 	StatePlaying
 	StateWin
 	StateLose
-
-	FPS = 60
 )
 
 const (
@@ -59,7 +58,7 @@ func NewGame() *Game {
 func (g *Game) Update() error {
 	switch g.state {
 	case StateSelect:
-		g.updateMenu()
+		g.updateSelect()
 	case StatePlaying:
 		g.updateGame()
 	case StateWin, StateLose:
@@ -73,28 +72,28 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return WindowWidth, WindowHeight
 }
 
-// updateMenu handles menu state updates
-func (g *Game) updateMenu() {
-	// TODO
-	if ebiten.IsKeyPressed(ebiten.KeySpace) {
-		g.state = StatePlaying
-		log.Println("Starting game...")
-	}
+// updateSelect handles menu state updates
+func (g *Game) updateSelect() {
+	g.selectUI.Update()
 }
 
 // updateGame handles main game state updates
 func (g *Game) updateGame() {
-	x := g.player.Position().X
-	if ebiten.IsKeyPressed(ebiten.KeyLeft) || ebiten.IsKeyPressed(ebiten.KeyJ) {
-		if x > 0 {
-			g.player.MoveLeft()
-		}
+	g.sceneUI.Update()
+	if ebiten.IsKeyPressed(ebiten.KeySpace) {
+		g.state = StateSelect
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyRight) || ebiten.IsKeyPressed(ebiten.KeyL) {
-		if x < GridWidth-1 {
-			g.player.MoveRight()
-		}
-	}
+	// x := g.player.Position().X
+	// if ebiten.IsKeyPressed(ebiten.KeyLeft) || ebiten.IsKeyPressed(ebiten.KeyJ) {
+	// 	if x > 0 {
+	// 		g.player.MoveLeft()
+	// 	}
+	// }
+	// if ebiten.IsKeyPressed(ebiten.KeyRight) || ebiten.IsKeyPressed(ebiten.KeyL) {
+	// 	if x < GridWidth-1 {
+	// 		g.player.MoveRight()
+	// 	}
+	// }
 }
 
 // updateGameOver handles game over state updates
@@ -108,11 +107,6 @@ func (g *Game) updateGameOver() {
 // drawGame draws the main game
 func (g *Game) drawGame(screen *ebiten.Image) {
 	// TODO
-}
-
-// drawPaused draws the paused overlay
-func (g *Game) drawPaused(screen *ebiten.Image) {
-	ebitenutil.DebugPrint(screen, "PAUSED\nPress ESC to continue")
 }
 
 // drawWin draws the win screen
